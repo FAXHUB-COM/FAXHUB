@@ -1,0 +1,1272 @@
+<!doctype html><html lang='fa' dir='rtl'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><title>هوش مصنوعی FAX</title><style>
+:root{--y:#ffd21c;--bg:#070707;--line:#292929;--txt:#f5f5f5}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:Tahoma,Arial,sans-serif}body{overflow:hidden}button,input{font:inherit}
+.app{height:100dvh;display:flex;flex-direction:column}.header{height:64px;flex:none;border-bottom:1px solid var(--line);background:#090909ee;backdrop-filter:blur(18px);display:flex;align-items:center;padding:0 14px;position:relative;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;font-weight:1000;font-size:17px}.logo{width:39px;height:39px;border-radius:12px;background:var(--y);color:#111;display:grid;place-items:center;font-size:20px;font-weight:1000}
+.menuBtn{margin-right:auto;width:43px;height:43px;border:1px solid #333;border-radius:12px;background:#151515;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.menuBtn i{display:block;width:18px;height:2px;background:#eee;border-radius:4px}
+.menu{position:absolute;top:58px;left:12px;width:260px;background:#111;border:1px solid #333;border-radius:17px;padding:9px;box-shadow:0 22px 70px #000;display:none}.menu.open{display:block}.menuHead{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #282828;margin-bottom:7px}.miniLogo{width:37px;height:37px;border-radius:11px;background:var(--y);color:#111;display:grid;place-items:center;font-weight:1000}.menuHead b{font-size:13px}.menuHead small{display:block;color:#777;font-size:10px;margin-top:3px}.menuSection{font-size:10px;color:#666;padding:10px 10px 5px;font-weight:800}
+.menu button{width:100%;border:0;background:transparent;color:#ddd;border-radius:10px;padding:12px 10px;text-align:right;font-size:13px}.menu button:hover{background:#202020;color:var(--y)}.creator{background:#181818;border:1px solid #292929;border-radius:12px;padding:10px;margin-top:7px;display:flex;align-items:center;gap:9px}.creatorAvatar{width:34px;height:34px;border-radius:50%;background:#252525;display:grid;place-items:center;color:var(--y);font-weight:900}.creator>div:last-child{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}.creator b,.creator small{display:block;line-height:1.5}
+.chat{width:min(1100px,100%);margin:auto;flex:1;min-height:0;display:flex;flex-direction:column;padding:12px}.chatTop{display:flex;align-items:center;justify-content:space-between;padding:4px 3px 10px}.chatTitle b{font-size:15px}.chatTitle small{display:block;color:#777;font-size:10px;margin-top:4px}.newBtn{background:#191919;border:1px solid #333;color:#ddd;border-radius:10px;padding:8px 11px;font-size:11px}
+.messages{flex:1;min-height:0;overflow:auto;padding:12px 4px 18px;display:flex;flex-direction:column;gap:11px}.msg{max-width:min(82%,760px);padding:6px 14px;border-radius:16px;line-height:1.55;font-size:14px;word-break:break-word;white-space:pre-wrap}.bot{align-self:flex-start;background:#171717;border:1px solid #303030}.user{align-self:flex-end;background:var(--y);color:#111}.msgTime{display:block;font-size:9px;opacity:.55;margin-top:2px}.actions{display:flex;gap:5px;margin-top:4px}.actions button{background:#00000014;border:1px solid #ffffff22;color:inherit;border-radius:7px;padding:4px 7px;font-size:10px}
+.code{background:#090909;color:#ddd;border:1px solid #2c2c2c;border-radius:9px;padding:10px;margin:7px 0;font-family:monospace;font-size:12px;overflow:auto;position:relative}.cpy{position:absolute;top:5px;left:5px;background:#1d1d1d;color:#bbb;border:1px solid #333;border-radius:6px;padding:3px 6px;font-size:9px}
+.typing{align-self:flex-start;background:#171717;border:1px solid #303030;padding:11px 14px;border-radius:15px;display:flex;gap:4px}.typing span{width:6px;height:6px;border-radius:50%;background:#999;animation:b 1.2s infinite}.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}@keyframes b{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.composer{display:flex;gap:8px;padding:9px 0 max(5px,env(safe-area-inset-bottom))}.input{flex:1;min-width:0;background:#151515;color:#fff;border:1px solid #333;border-radius:14px;padding:13px 14px;outline:none}.input:focus{border-color:#665713}.send{width:55px;border:0;border-radius:14px;background:var(--y);color:#111;font-weight:1000}
+.history{position:fixed;inset:0;background:#000b;z-index:30;display:none;padding:15px}.history.open{display:grid;place-items:center}.historyBox{width:min(650px,100%);max-height:85vh;overflow:auto;background:#111;border:1px solid #333;border-radius:18px;padding:15px}.hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#181818;border:1px solid #292929;border-radius:11px;padding:10px;margin-top:7px}.hrow span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.close{background:#222;border:1px solid #333;color:#fff;border-radius:9px;padding:7px 10px}.empty{color:#777;text-align:center;padding:35px}@media(max-width:600px){.msg{max-width:90%}.chat{padding:8px}}
+
+<style>
+.stop-btn{
+  width:55px;height:48px;flex:0 0 55px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid #ff626b!important;border-radius:16px!important;
+  background:linear-gradient(145deg,#ff5964,#c91632)!important;color:#fff!important;
+  box-shadow:0 5px 18px rgba(225,29,55,.28),inset 0 1px 0 rgba(255,255,255,.22);
+  font-size:20px;font-weight:900;cursor:pointer;transition:transform .18s,filter .18s,box-shadow .18s;
+}
+.stop-btn:hover{filter:brightness(1.12);transform:translateY(-2px);box-shadow:0 8px 24px rgba(225,29,55,.4),inset 0 1px 0 rgba(255,255,255,.22)}
+.stop-btn:active{transform:scale(.94);filter:brightness(.96)}
+.stop-btn:focus-visible{outline:3px solid #ff9aa2;outline-offset:3px}
+
+/* FAX MEMORY */
+#xMemoryBtn{width:100%;border:0;background:transparent;color:#ddd;border-radius:10px;padding:12px 10px;text-align:right;font-size:13px;cursor:pointer}
+#xMemoryBtn:hover{background:#202020;color:var(--y)}
+#xMemoryPanel{position:fixed;left:14px;bottom:178px;width:min(380px,calc(100vw - 28px));max-height:70vh;overflow:auto;z-index:60;background:#101010;border:1px solid #303030;border-radius:18px;padding:16px;box-shadow:0 12px 40px #000b;display:none}
+#xMemoryPanel.open{display:block}.xm-title{font-weight:900;font-size:16px;margin-bottom:5px}.xm-sub{font-size:10px;color:#777;line-height:1.7;margin-bottom:12px}.xm-add{display:flex;gap:7px}.xm-add input{flex:1;min-width:0;background:#181818;color:#eee;border:1px solid #333;border-radius:10px;padding:9px}.xm-add button{border:0;border-radius:10px;padding:0 13px;background:#f5c400;color:#111;font-weight:900}.xm-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}.xm-item{display:flex;gap:8px;align-items:center;background:#171717;border:1px solid #292929;border-radius:10px;padding:8px}.xm-item span{flex:1;color:#ddd;font-size:11px;line-height:1.6}.xm-del{border:0;background:#272727;color:#ff8585;border-radius:8px;padding:5px 8px;cursor:pointer}.xm-actions{display:flex;gap:7px;margin-top:12px}.xm-actions button{flex:1;border:0;border-radius:10px;padding:9px;font-weight:800;cursor:pointer}.xm-close{background:#242424;color:#ddd}.xm-clear{background:#3a1717;color:#ffb0b0}.xm-note{font-size:9px;color:#666;margin-top:10px;line-height:1.7}
+#input.input{resize:none;overflow-y:auto;white-space:pre-wrap;line-height:1.5;max-height:160px}
+
+.ai-code{direction:ltr;text-align:left;background:#202124;border:1px solid #3b3d40;border-radius:14px;overflow:hidden;margin:14px 0;color:#e8eaed;box-shadow:0 3px 12px #0002}
+.ai-code-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#292a2d;border-bottom:1px solid #3b3d40;direction:ltr}
+.ai-code-lang{font:600 12px system-ui;color:#c5c8ce;letter-spacing:.3px}
+.ai-code .cpy{position:static;border:0;background:transparent;color:#d2d5db;padding:5px 8px;border-radius:7px;cursor:pointer;font-size:12px}
+.ai-code .cpy:hover{background:#414247}
+.ai-code pre{margin:0;padding:16px;overflow:auto;max-width:100%;white-space:pre;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4}
+.ai-code code{background:transparent;color:inherit;padding:0;border:0;border-radius:0}
+.ai-code .tok-key{color:#c792ea;font-weight:600}.ai-code .tok-string{color:#c3e88d}.ai-code .tok-comment{color:#7f848e;font-style:italic}.ai-code .tok-num{color:#ffcb6b}.ai-code .tok-fn{color:#82aaff}
+</style>
+</style>
+<style>
+
+.plus-wrap{position:relative;flex:0 0 42px}.plus-btn{font-size:25px;line-height:1}.plus-tools{position:absolute;bottom:51px;right:0;width:170px;background:#111;border:1px solid #333;border-radius:15px;padding:6px;box-shadow:0 12px 35px #000b;display:none;z-index:50}.plus-tools.open{display:flex;flex-direction:column;gap:3px}.plus-tools button{border:0;background:transparent;color:#eee;text-align:right;border-radius:10px;padding:10px 9px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:9px}.plus-tools button:hover{background:#202020;color:var(--y)}.plus-tools button span{flex:1;text-align:right}
+.tool-btn{
+  width:42px;height:42px;flex:0 0 42px;border:1px solid rgba(255,193,7,.20);
+  background:rgba(255,193,7,.06);color:#e7b82b;border-radius:13px;cursor:pointer;
+  display:grid;place-items:center;font-size:19px;transition:.2s;
+}
+.tool-btn:hover{background:rgba(255,193,7,.11);border-color:rgba(255,193,7,.35);transform:translateY(-1px)}
+.tool-btn.recording{background:rgba(255,193,7,.16);box-shadow:0 0 14px rgba(255,193,7,.16)}
+.file-preview{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.file-chip{
+  display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:10px;
+  background:rgba(255,193,7,.06);border:1px solid rgba(255,193,7,.16);
+  color:#ddd;font-size:12px;max-width:230px
+}
+.file-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chip button{border:0;background:none;color:#999;cursor:pointer;font-size:15px}
+.attach-note{font-size:11px;color:#8e8e8e;margin-top:5px}
+</style>
+<style>
+.web-search-box{display:none;margin:0 0 9px;background:#111;border:1px solid #303030;border-radius:14px;padding:10px}
+.web-search-box.show{display:block}.web-search-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.web-search-head b{font-size:12px}.web-result{padding:9px;border:1px solid #282828;background:#171717;border-radius:10px;margin-top:7px}
+.web-result a{color:#ffd21c;text-decoration:none;font-size:12px;font-weight:800}.web-result p{margin:5px 0 0;color:#aaa;font-size:10px;line-height:1.7}
+.web-result .domain{display:block;color:#666;font-size:9px;margin-top:4px;direction:ltr;text-align:left}.web-loading{color:#aaa;font-size:11px;text-align:center;padding:10px}
+</style>
+<style>
+
+.historyHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.historyHeader>div{display:flex;flex-direction:column;gap:3px}
+.historyHeader small{font-size:10px;color:#777}
+.historyTools{display:flex;gap:7px;margin-bottom:9px}
+.historyTools input{flex:1;min-width:0;background:#111;border:1px solid #292929;color:#eee;border-radius:11px;padding:10px 12px;outline:none}
+.historyTools input:focus{border-color:#555}
+.historyAction{border:1px solid #333;background:#171717;color:#eee;border-radius:11px;padding:0 11px;cursor:pointer;white-space:nowrap}
+.historyFilters{display:flex;gap:6px;margin-bottom:10px}
+.historyFilter{border:1px solid #292929;background:#111;color:#888;border-radius:9px;padding:7px 11px;cursor:pointer;font-size:11px}
+.historyFilter.active{color:#f5c400;border-color:#555;background:#191919}
+.hrow{position:relative!important;display:flex!important;align-items:center!important;gap:8px!important;padding:11px 8px!important;border-bottom:1px solid #1d1d1d!important;border-radius:10px!important;margin-bottom:3px!important}
+.hrow:hover{background:#151515!important}
+.hmain{min-width:0;flex:1;cursor:pointer}
+.htitle{display:block;color:#eee;font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hmeta{display:block;color:#666;font-size:9px;margin-top:4px}
+.hactions{display:flex;gap:4px;opacity:.75}
+.hicon{border:1px solid #292929;background:#111;color:#aaa;border-radius:7px;padding:5px 7px;cursor:pointer;font-size:10px}
+.hicon:hover{color:#fff}
+.hicon.danger:hover{color:#ff7070}
+.historyEmpty{padding:28px 10px;text-align:center;color:#666;font-size:12px}
+
+
+</style>
+<style id="auto-history-enhancement">
+.historyGroup{margin:14px 0 6px;color:#888;font-size:12px;font-weight:700;padding:0 6px}.hpreview{display:block;color:#666;font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72%}
+.hrow{transition:background .15s,transform .15s}
+.hrow:hover{background:#1b1b1b!important}
+</style>
+<style id="FAX-personalization-css">
+#xPersonalPanel{position:fixed;left:14px;bottom:130px;width:min(360px,calc(100vw - 28px));z-index:50;background:#101010;border:1px solid #303030;border-radius:18px;padding:16px;box-shadow:0 12px 40px #000b;display:none}
+#xPersonalPanel.open{display:block}.xp-title{font-weight:900;font-size:16px;margin-bottom:12px}.xp-row{margin:10px 0}.xp-row label{display:block;color:#aaa;font-size:11px;margin-bottom:6px}.xp-row select,.xp-row textarea{width:100%;box-sizing:border-box;background:#181818;color:#eee;border:1px solid #333;border-radius:10px;padding:9px}.xp-row textarea{min-height:70px;resize:vertical}.xp-actions{display:flex;gap:8px;margin-top:12px}.xp-actions button{flex:1;border:0;border-radius:10px;padding:10px;font-weight:800;cursor:pointer}.xp-save{background:#f5c400;color:#111}.xp-close{background:#242424;color:#ddd}.xp-note{font-size:9px;color:#777;margin-top:8px;line-height:1.7}
+</style><style id="FAX-themes">
+.theme-panel{position:fixed;top:58px;left:282px;z-index:9999;width:280px;background:#111;border:1px solid #333;border-radius:16px;padding:14px;box-shadow:0 16px 50px #000b;display:none}.theme-panel.show{display:block}@media(max-width:600px){.theme-panel{left:12px;top:118px;width:calc(100vw - 24px)}}.theme-title{font-weight:900;margin-bottom:10px}.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.theme-btn{border:1px solid #333;border-radius:12px;padding:10px;background:#1a1a1a;color:#eee;cursor:pointer;text-align:right}.theme-btn.active{outline:2px solid var(--accent,#ffd21c)}.theme-dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-left:7px;background:var(--dot,#ffd21c)}
+[data-theme="ocean"]{--accent:#35b9ff!important;--bg:#071018!important;--line:#183342!important;--txt:#edf9ff!important;--card:#0d1a23!important;--bubble:#102634!important;--y:#35b9ff!important}
+[data-theme="purple"]{--accent:#b67cff!important;--bg:#0d0814!important;--line:#2b1b3b!important;--txt:#f7f0ff!important;--card:#170e20!important;--bubble:#25153a!important;--y:#b67cff!important}
+[data-theme="green"]{--accent:#35e08b!important;--bg:#06100b!important;--line:#193426!important;--txt:#effff5!important;--card:#0c1b13!important;--bubble:#123021!important;--y:#35e08b!important}
+[data-theme="rose"]{--accent:#ff6fae!important;--bg:#13080d!important;--line:#3b1b28!important;--txt:#fff1f6!important;--card:#211019!important;--bubble:#361727!important;--y:#ff6fae!important}
+[data-theme="light"]{--accent:#d59f00!important;--bg:#f5f5f5!important;--line:#d8d8d8!important;--txt:#171717!important;--card:#ffffff!important;--bubble:#ececec!important;--y:#d59f00!important}
+.theme-toggle{display:none}
+</style>
+<style id="FAX-light-theme-fix">
+[data-theme="light"] .header{background:#ffffffee!important}
+[data-theme="light"] .menu,[data-theme="light"] .theme-panel,[data-theme="light"] .historyBox,[data-theme="light"] #xMemoryPanel,[data-theme="light"] #xPersonalPanel,[data-theme="light"] .plus-tools{background:#fff!important;color:#171717!important;border-color:#d8d8d8!important;box-shadow:0 12px 35px #0002!important}
+[data-theme="light"] .menu button,[data-theme="light"] #xMemoryBtn{color:#222!important}
+[data-theme="light"] .menu button:hover,[data-theme="light"] #xMemoryBtn:hover,[data-theme="light"] .plus-tools button:hover{background:#eee!important;color:#9a7300!important}
+[data-theme="light"] .menuHead,[data-theme="light"] .creator,[data-theme="light"] .hrow,[data-theme="light"] .xm-item,[data-theme="light"] .web-result,[data-theme="light"] .historyTools input,[data-theme="light"] .historyAction,[data-theme="light"] .historyFilter{background:#f5f5f5!important;border-color:#ddd!important;color:#222!important}
+[data-theme="light"] .menuHead small,[data-theme="light"] .menuSection,[data-theme="light"] .creator small,[data-theme="light"] .hmeta,[data-theme="light"] .hpreview,[data-theme="light"] .historyHeader small{color:#666!important}
+[data-theme="light"] .newBtn,[data-theme="light"] .close,[data-theme="light"] .historyAction,[data-theme="light"] .historyFilter,[data-theme="light"] .theme-btn{background:#f1f1f1!important;color:#222!important;border-color:#d4d4d4!important}
+[data-theme="light"] .bot,[data-theme="light"] .typing{background:#fff!important;color:#171717!important;border-color:#d8d8d8!important}
+[data-theme="light"] .input{background:#fff!important;color:#171717!important;border-color:#ccc!important}
+[data-theme="light"] .code{background:#f2f2f2!important;color:#222!important;border-color:#ccc!important}
+[data-theme="light"] .cpy,[data-theme="light"] .hicon,[data-theme="light"] .xm-del{background:#e5e5e5!important;color:#444!important;border-color:#ccc!important}
+[data-theme="light"] .web-search-box,[data-theme="light"] .web-loading{background:#fff!important;color:#222!important;border-color:#ddd!important}
+[data-theme="light"] .web-result p,[data-theme="light"] .web-result .domain{color:#666!important}
+[data-theme="light"] .file-chip{background:#f7f7f7!important;color:#222!important;border-color:#ddd!important}
+[data-theme="light"] .xp-row select,[data-theme="light"] .xp-row textarea,[data-theme="light"] .xm-add input{background:#fff!important;color:#222!important;border-color:#ccc!important}
+[data-theme="light"] .xp-row label,[data-theme="light"] .xm-sub,[data-theme="light"] .xp-note,[data-theme="light"] .xm-note{color:#666!important}
+</style>
+<style id="FAX-modern-ui">
+/* Modern ChatGPT-inspired layout mode */
+html.modern-ui .app{background:var(--bg)!important}
+html.modern-ui .header{height:64px!important;background:color-mix(in srgb,var(--bg) 92%,transparent)!important;backdrop-filter:blur(18px)!important;border-bottom:1px solid var(--line)!important;box-shadow:none!important}
+html.modern-ui .brand{gap:11px!important;font-weight:750!important;letter-spacing:-.3px}
+html.modern-ui .logo,html.modern-ui .miniLogo{border-radius:12px!important;background:var(--accent)!important;color:#101010!important;box-shadow:none!important}
+html.modern-ui .chat{max-width:900px!important;width:100%!important;margin:0 auto!important;padding:0 26px!important}
+html.modern-ui .chatTop{border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0!important;padding:18px 0!important}
+html.modern-ui .chatTitle b{font-size:16px!important;font-weight:700!important}
+html.modern-ui .messages{padding:28px 0 32px!important;gap:26px!important}
+html.modern-ui .user{border-radius:22px 22px 7px 22px!important;padding:13px 18px!important;max-width:min(78%,680px)!important;box-shadow:none!important}
+html.modern-ui .bot{background:transparent!important;border:0!important;border-radius:0!important;padding:4px 2px!important;box-shadow:none!important;max-width:100%!important}
+html.modern-ui .composer{max-width:900px!important;margin:0 auto 20px!important;border:1px solid var(--line)!important;border-radius:25px!important;background:var(--card)!important;box-shadow:0 8px 32px #0000000a!important;padding:12px 14px!important}
+html.modern-ui .input{border:0!important;background:transparent!important;box-shadow:none!important}
+html.modern-ui .send{border-radius:14px!important;background:var(--accent)!important;color:#111!important;transition:transform .18s,filter .18s!important}
+html.modern-ui .send:hover{transform:translateY(-1px);filter:brightness(1.06)}
+html.modern-ui .menu{border-radius:18px!important;box-shadow:0 18px 60px #0003!important;border:1px solid var(--line)!important}
+html.modern-ui .newBtn{border-radius:13px!important}
+html.modern-ui .typing{background:transparent!important;border:0!important}
+@media(max-width:650px){html.modern-ui .chat{padding:0 14px!important}html.modern-ui .messages{padding-top:18px!important;gap:20px!important}html.modern-ui .composer{margin:0 10px 12px!important;border-radius:21px!important}html.modern-ui .user{max-width:90%!important}}
+</style>
+<style id="FAX-neo-ui">
+/* A visually distinct Aurora workspace skin */
+html.neo-ui body{background:#101323!important}
+html.neo-ui .app{background:radial-gradient(ellipse at 12% 0%,#30365b 0,transparent 38%),linear-gradient(135deg,#151827,#101323 70%)!important;color:#f2f3ff!important}
+html.neo-ui .header{background:linear-gradient(90deg,#222843,#292344)!important;border-bottom:1px solid #454866!important;box-shadow:0 8px 30px #090b18!important}
+html.neo-ui .brand{color:#f5f4ff!important}
+html.neo-ui .logo,html.neo-ui .miniLogo{background:linear-gradient(135deg,#a78bfa,#67e8f9)!important;color:#17152a!important;border-radius:16px!important;box-shadow:0 0 24px #8b5cf655!important}
+html.neo-ui .sidebar{background:#171a2b!important;border-right:1px solid #34364e!important;color:#e9eaff!important}
+html.neo-ui .chat{max-width:1080px!important;padding:20px 30px!important}
+html.neo-ui .chatTop{background:linear-gradient(120deg,#292d49,#302541)!important;border:1px solid #454866!important;border-radius:20px!important;color:#fff!important}
+html.neo-ui .messages{gap:22px!important;padding:30px 0!important}
+html.neo-ui .user{background:linear-gradient(135deg,#6254a7,#4c4a82)!important;color:white!important;border:1px solid #8980c4!important;border-radius:20px 20px 5px 20px!important;box-shadow:0 10px 30px #080a1840!important}
+html.neo-ui .bot{background:#202438!important;color:#f0f1ff!important;border:1px solid #353951!important;border-radius:18px!important;padding:18px 22px!important;box-shadow:0 12px 28px #090b1840!important}
+html.neo-ui .composer{background:#22263b!important;border:1px solid #555879!important;border-radius:24px!important;box-shadow:0 0 0 4px #a78bfa12,0 18px 45px #07091470!important}
+html.neo-ui .input{color:#f6f5ff!important;background:transparent!important}
+html.neo-ui .send{background:linear-gradient(135deg,#a78bfa,#67e8f9)!important;color:#171528!important;border-radius:16px!important}
+html.neo-ui .menu,.html.neo-ui .theme-panel{background:#20243a!important;color:#f2f3ff!important;border:1px solid #4a4e6c!important;border-radius:20px!important}
+html.neo-ui .menu button,html.neo-ui .theme-panel button{color:#f1f2ff!important}
+html.neo-ui .newBtn{background:#343853!important;color:#fff!important;border:1px solid #555a78!important;border-radius:14px!important}
+html.neo-ui .typing{background:#24283e!important;color:#ddd!important;border-radius:14px!important}
+@media(max-width:650px){html.neo-ui .chat{padding:8px 12px!important}html.neo-ui .bot{padding:13px!important}}
+.ui-choice-pop{position:fixed;z-index:99999;top:76px;right:18px;width:min(290px,calc(100vw - 28px));padding:10px;background:var(--card,#202020);color:var(--text,#fff);border:1px solid var(--line,#444);border-radius:16px;box-shadow:0 18px 60px #0007;direction:rtl}
+.ui-choice-pop .ui-choice-title{padding:8px 10px 10px;font-weight:800;font-size:13px;opacity:.75}
+.ui-choice-pop button{display:flex;width:100%;text-align:right;align-items:center;gap:10px;padding:12px;border:0;border-radius:11px;background:transparent;color:inherit;cursor:pointer}
+.ui-choice-pop button:hover{background:rgba(127,127,127,.15)}
+.ui-choice-pop button.active{background:rgba(160,130,255,.17);outline:1px solid #a78bfa55}
+.ui-choice-pop small{display:block;opacity:.65;font-size:11px;margin-top:3px}
+
+/* Compact user message bubbles: hug the text instead of occupying a wide block */
+.messages .msg.user{
+  display: inline-block !important;
+  width: fit-content !important;
+  max-width: min(68%, 620px) !important;
+  box-sizing: border-box !important;
+  padding: 8px 12px !important;
+  line-height: 1.75 !important;
+}
+html.modern-ui .messages .msg.user{max-width:min(68%,620px)!important;padding:5px 13px!important}
+html.neo-ui .messages .msg.user{max-width:min(68%,620px)!important;padding:5px 13px!important}
+@media(max-width:650px){
+  .messages .msg.user,html.modern-ui .messages .msg.user,html.neo-ui .messages .msg.user{max-width:84% !important;padding:5px 11px !important}
+}
+
+/* Refined send button */
+#send.send{
+  width:48px;height:48px;min-width:48px;flex:0 0 48px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.12);border-radius:16px;
+  background:linear-gradient(145deg,#ffe16b 0%,#f5bd18 55%,#d99a00 100%);
+  color:#171717;font-size:23px;font-weight:800;line-height:1;
+  box-shadow:0 5px 16px rgba(245,189,24,.22),inset 0 1px 0 rgba(255,255,255,.42);
+  cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+#send.send:hover{transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 8px 20px rgba(245,189,24,.3),inset 0 1px 0 rgba(255,255,255,.45)}
+#send.send:active{transform:translateY(0) scale(.96);box-shadow:0 2px 8px rgba(245,189,24,.18)}
+#send.send:focus-visible{outline:3px solid rgba(245,189,24,.38);outline-offset:3px}
+html.modern-ui #send.send{border-radius:50%!important;background:linear-gradient(135deg,#f9d65c,#f3b914)!important;color:#171717!important}
+html.neo-ui #send.send{border-radius:16px!important;background:linear-gradient(135deg,#a78bfa,#67e8f9)!important;color:#171528!important;box-shadow:0 5px 18px rgba(103,232,249,.18),inset 0 1px 0 rgba(255,255,255,.3)}
+</style>
+
+<style id="FAX-stop-final-fix">
+/* Strong, final override for the actual stop control */
+#composer #stop.stop-btn, .composer #stop.stop-btn {
+  appearance:none !important; -webkit-appearance:none !important;
+  display:inline-flex; align-items:center; justify-content:center;
+  flex:0 0 52px !important; width:52px !important; min-width:52px !important;
+  height:52px !important; padding:0 !important; margin:0 !important;
+  border:1px solid #ff6874 !important; border-radius:16px !important;
+  background:#e93449 !important;
+  background-image:linear-gradient(135deg,#ff6673 0%,#f04456 48%,#c91d37 100%) !important;
+  color:#fff !important; font-size:22px !important; font-weight:900 !important;
+  line-height:1 !important; cursor:pointer !important;
+  box-shadow:0 4px 14px rgba(220,25,52,.30), inset 0 1px 0 rgba(255,255,255,.22) !important;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease !important;
+}
+#composer #stop.stop-btn:hover, .composer #stop.stop-btn:hover {
+  filter:brightness(1.08) !important; transform:translateY(-1px) !important;
+  box-shadow:0 7px 20px rgba(220,25,52,.38),inset 0 1px 0 rgba(255,255,255,.24) !important;
+}
+#composer #stop.stop-btn:active, .composer #stop.stop-btn:active { transform:scale(.95) !important; }
+#composer #stop.stop-btn:focus-visible, .composer #stop.stop-btn:focus-visible { outline:3px solid #ff9aa2 !important; outline-offset:3px !important; }
+
+/* Stable code-copy control layout */
+.ai-code .ai-code-head{direction:rtl!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;min-height:48px!important}
+.ai-code .ai-code-copy{position:static!important;inset:auto!important;float:none!important;width:auto!important;height:auto!important;min-width:0!important;max-width:100%!important;display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;gap:7px!important;margin:0!important;padding:7px 10px!important;border:1px solid #45474b!important;border-radius:8px!important;background:#36373a!important;color:#f1f1f1!important;font:600 12px/1.3 Tahoma,Arial,sans-serif!important;white-space:nowrap!important;cursor:pointer!important;box-shadow:none!important}
+.ai-code .ai-code-copy svg{width:16px!important;height:16px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;flex:none!important}
+.ai-code .ai-code-copy:active{transform:scale(.97)}
+.ai-code .ai-code-copy:hover{background:#45464a!important}
+@media(max-width:420px){.ai-code .ai-code-head{padding:8px 10px!important}.ai-code .ai-code-copy{font-size:11px!important;padding:6px 8px!important}.ai-code-lang{font-size:11px!important}}
+</style>
+
+<style id="FAX-chatgpt-composer">
+/* ChatGPT-inspired composer: preserve existing controls, refine only typing area */
+.composer{align-items:flex-end!important;gap:8px!important;padding:10px 0 max(8px,env(safe-area-inset-bottom))!important;max-width:900px;margin-left:auto;margin-right:auto;width:100%}
+.composer .input{display:block;flex:1 1 auto!important;width:100%;min-width:0!important;min-height:40px!important;height:40px;max-height:144px!important;resize:none!important;overflow-y:auto!important;box-sizing:border-box!important;padding:10px 15px!important;border:1px solid #3a3a3a!important;border-radius:26px!important;background:#1b1b1b!important;color:var(--txt,#f5f5f5)!important;font:14px/1.55 Tahoma,Arial,sans-serif!important;outline:none!important;box-shadow:0 1px 2px #0002!important;transition:border-color .15s,box-shadow .15s}
+.composer .input:focus{border-color:#555!important;box-shadow:0 0 0 1px #ffffff08!important}
+.composer .input::placeholder{color:#858585!important}
+.composer .tool-btn,.composer .send{align-self:flex-end!important;flex-shrink:0!important}
+.composer .plus-wrap{align-self:flex-end!important}
+@media(max-width:650px){.composer{gap:6px!important;padding:8px 8px max(8px,env(safe-area-inset-bottom))!important}.composer .input{font-size:16px!important;padding:12px 14px!important;border-radius:23px!important;min-height:40px!important;height:40px}.composer .tool-btn{width:38px!important;height:38px!important;flex-basis:38px!important}.composer #send.send,.composer #stop.stop-btn{width:42px!important;height:42px!important;min-width:42px!important;flex-basis:42px!important}}
+[data-theme="light"] .composer .input{background:#fff!important;color:#171717!important;border-color:#d4d4d4!important}
+html.modern-ui .composer{align-items:flex-end!important}
+</style>
+<style id="FAX-image-composer-layout">
+/* Compact composer: small by default, grows naturally with each new line */
+.composer{display:grid!important;grid-template-columns:40px minmax(0,1fr) 40px!important;grid-template-rows:auto 40px!important;align-items:center!important;gap:6px!important;width:calc(100% - 24px)!important;max-width:900px!important;margin:8px auto!important;padding:6px 10px max(6px,env(safe-area-inset-bottom))!important;border:1.5px solid #d9dfdd!important;border-radius:24px!important;background:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important;box-sizing:border-box!important}
+.composer #input.input{grid-column:1/4!important;grid-row:1!important;width:100%!important;min-height:30px!important;height:30px!important;max-height:130px!important;padding:5px 10px!important;border:0!important;border-radius:15px!important;background:transparent!important;color:#202522!important;box-shadow:none!important;font-size:16px!important;line-height:1.4!important}
+.composer #input.input:focus{border:0!important;box-shadow:none!important}
+.composer #input.input::placeholder{color:#777!important}
+.composer #send.send,.composer #stop.stop-btn{grid-column:1!important;grid-row:2!important;width:40px!important;height:40px!important;min-width:40px!important;border-radius:13px!important;background:#087c5a!important;color:white!important;border:0!important;font-size:20px!important;display:flex!important;align-items:center!important;justify-content:center!important;justify-self:start!important}
+.composer #attachBtn{grid-column:3!important;grid-row:2!important;display:flex!important;width:40px!important;height:40px!important;min-width:40px!important;align-items:center!important;justify-content:center!important;border:1.5px solid #d9dfdd!important;border-radius:13px!important;background:#fff!important;color:#111!important;font-size:21px!important;justify-self:end!important}
+.composer #webBtn,.composer #voiceBtn{display:none!important}
+[data-theme="light"] .composer{background:#fff!important;border-color:#d9dfdd!important}
+@media(max-width:650px){.composer{grid-template-columns:34px minmax(0,1fr) 34px!important;grid-template-rows:auto 34px!important;padding:5px 8px!important;gap:5px!important;border-radius:20px!important}.composer #send.send,.composer #stop.stop-btn,.composer #attachBtn{width:34px!important;height:34px!important;min-width:34px!important;border-radius:11px!important}.composer #input.input{font-size:15px!important;min-height:28px!important;height:28px!important;padding:4px 8px!important}}
+</style>
+<style id="FAX-composer-button-equal-autogrow-fix">
+/* Uniform compact controls and reliable multiline auto-growth */
+.composer{grid-template-columns:36px minmax(0,1fr) 36px!important;grid-template-rows:auto 36px!important;align-items:end!important}
+.composer #send.send,.composer #stop.stop-btn,.composer #attachBtn,.composer #plusBtn.tool-btn{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;max-width:36px!important;max-height:36px!important;flex:0 0 36px!important;box-sizing:border-box!important;border-radius:11px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
+.composer #input.input{grid-row:1!important;min-height:30px!important;height:30px;max-height:120px!important;overflow-y:hidden;box-sizing:border-box!important;line-height:1.45!important;padding:5px 10px!important;resize:none!important}
+@media(max-width:650px){.composer{grid-template-columns:36px minmax(0,1fr) 36px!important;grid-template-rows:auto 36px!important;gap:6px!important}.composer #send.send,.composer #stop.stop-btn,.composer #attachBtn,.composer #plusBtn.tool-btn{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;flex-basis:36px!important}.composer #input.input{font-size:15px!important;min-height:30px!important;height:30px!important;max-height:120px!important;padding:5px 8px!important}}
+</style>
+<style id="FAX-composer-theme-adaptation">
+/* Explicit dark theme composer palette: prevent white fallback in black mode */
+[data-theme="dark"]{--card:#111111!important;--line:#303030!important;--txt:#f4f4f4!important;--accent:#20a875!important}
+[data-theme="dark"] .composer{background:#111!important;border:1px solid #303030!important;color:#f4f4f4!important}
+[data-theme="dark"] .composer #input.input{background:transparent!important;color:#f4f4f4!important;caret-color:#20a875!important}
+[data-theme="dark"] .composer #input.input::placeholder{color:#a5a5a5!important;opacity:.72!important}
+[data-theme="dark"] .composer #attachBtn,[data-theme="dark"] .composer #plusBtn.tool-btn{background:#1b1b1b!important;color:#f4f4f4!important;border-color:#383838!important}
+[data-theme="dark"] .composer #send.send,[data-theme="dark"] .composer #stop.stop-btn{background:#20a875!important;color:#fff!important}
+/* Composer and all its controls follow the selected app theme */
+.composer{background:var(--card,#fff)!important;border-color:var(--line,#d9dfdd)!important;color:var(--txt,#202522)!important;transition:background .18s,border-color .18s,color .18s!important}
+.composer #input.input{background:transparent!important;color:var(--txt,#202522)!important;caret-color:var(--accent,#087c5a)!important}
+.composer #input.input::placeholder{color:var(--txt,#777)!important;opacity:.58!important}
+.composer #send.send,.composer #stop.stop-btn{background:var(--accent,#087c5a)!important;color:#fff!important;transition:background .18s,color .18s!important}
+.composer #attachBtn,.composer #plusBtn.tool-btn{background:var(--card,#fff)!important;color:var(--txt,#202522)!important;border:1px solid var(--line,#d9dfdd)!important;transition:background .18s,color .18s,border-color .18s!important}
+[data-theme="light"] .composer #send.send,[data-theme="light"] .composer #stop.stop-btn{color:#fff!important}
+[data-theme="ocean"] .composer #attachBtn,[data-theme="purple"] .composer #attachBtn,[data-theme="green"] .composer #attachBtn,[data-theme="rose"] .composer #attachBtn{background:var(--card)!important;color:var(--txt)!important;border-color:var(--line)!important}
+</style>
+
+<style id="FAX-dark-send-yellow-fix">
+html[data-theme="dark"] .composer #send.send,
+[data-theme="dark"] .composer #send.send,
+body[data-theme="dark"] .composer #send.send,
+html.dark .composer #send.send,
+body.dark .composer #send.send {
+  background: var(--y, #ffd21c) !important;
+  color: #111 !important;
+  border: 0 !important;
+}
+</style>
+<style id="FAX-remove-green-send-artifact">
+html[data-theme="dark"] .composer #send.send,
+body[data-theme="dark"] .composer #send.send,
+[data-theme="dark"] .composer #send.send,
+html.dark .composer #send.send,
+body.dark .composer #send.send,
+html[data-theme="dark"] .composer #send.send:hover,
+html[data-theme="dark"] .composer #send.send:active {
+  background: #ffd21c !important;
+  background-image: none !important;
+  color: #111 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+html[data-theme="dark"] .composer #send.send::before,
+html[data-theme="dark"] .composer #send.send::after,
+body[data-theme="dark"] .composer #send.send::before,
+body[data-theme="dark"] .composer #send.send::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+}
+</style>
+
+<style id="FAX-dark-send-stable-position-final">
+/* Keep the dark-theme send button perfectly stationary after sending/clicking. */
+html[data-theme="dark"] .composer #send.send,
+body[data-theme="dark"] .composer #send.send,
+[data-theme="dark"] .composer #send.send,
+html.dark .composer #send.send, body.dark .composer #send.send {
+  box-sizing: border-box !important; width: 36px !important; min-width: 36px !important;
+  height: 36px !important; min-height: 36px !important; flex: 0 0 36px !important;
+  margin: 0 !important; padding: 0 !important; vertical-align: middle !important;
+  transform: none !important; translate: none !important;
+  background: #ffd21c !important; background-color: #ffd21c !important; background-image: none !important;
+  border: 0 !important; outline: 0 !important; box-shadow: none !important;
+  filter: none !important; text-shadow: none !important;
+  transition: background-color 0s, color 0s !important;
+}
+html[data-theme="dark"] .composer #send.send:hover,
+html[data-theme="dark"] .composer #send.send:active,
+html[data-theme="dark"] .composer #send.send:focus,
+html[data-theme="dark"] .composer #send.send:focus-visible,
+body[data-theme="dark"] .composer #send.send:hover,
+body[data-theme="dark"] .composer #send.send:active,
+body[data-theme="dark"] .composer #send.send:focus,
+body[data-theme="dark"] .composer #send.send:focus-visible {
+  transform: none !important; translate: none !important; top: auto !important;
+  background: #ffd21c !important; box-shadow: none !important; filter: none !important;
+}
+html[data-theme="dark"] .composer #send.send::before,
+html[data-theme="dark"] .composer #send.send::after,
+body[data-theme="dark"] .composer #send.send::before,
+body[data-theme="dark"] .composer #send.send::after { display: none !important; content: none !important; }
+</style>
+<style id="faxhub-loader-style">
+#faxhub-loader{position:fixed;inset:0;z-index:999999;background:#06060b;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Tahoma,Arial,sans-serif;overflow:hidden;transition:opacity .45s ease,visibility .45s ease}
+#faxhub-loader.done{opacity:0;visibility:hidden;pointer-events:none}
+#faxhub-loader .fx-bg{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(#ffffff06 1px,transparent 1px),linear-gradient(90deg,#ffffff06 1px,transparent 1px);background-size:50px 50px;mask-image:radial-gradient(ellipse at center,black,transparent 75%)}
+#faxhub-loader .fx-glow{position:absolute;width:330px;height:330px;border-radius:50%;filter:blur(110px);opacity:.22;background:#792fff;top:-180px;left:-100px}
+#faxhub-loader .fx-glow.two{top:auto;left:auto;bottom:-180px;right:-100px;background:#126bff}
+#faxhub-loader .fx-card{position:relative;z-index:2;width:min(390px,90vw);padding:36px 30px 30px;text-align:center;background:#ffffff08;border:1px solid #ffffff18;border-radius:24px;backdrop-filter:blur(22px);box-shadow:0 30px 100px #0007;animation:fxCardIn 1s cubic-bezier(.16,1,.3,1)}
+#faxhub-loader .fx-logo{font-size:39px;font-weight:900;letter-spacing:-2px;direction:ltr;display:inline-block;background:linear-gradient(120deg,#ffd21c,#fff1a1,#ffb900,#ffd21c);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:fxGradient 4s linear infinite}
+#faxhub-loader .fx-tag{font-size:9px;color:#77748a;letter-spacing:3px;direction:ltr;margin-top:7px}
+#faxhub-loader .fx-spinner{position:relative;width:72px;height:72px;margin:32px auto 23px;display:grid;place-items:center}
+#faxhub-loader .fx-ring{position:absolute;inset:0;border-radius:50%;border:1px solid transparent;border-top:2px solid #ffd21c;border-right:1px solid #ffd21c35;animation:fxRotate 2s linear infinite;filter:drop-shadow(0 0 5px #ffd21c66)}
+#faxhub-loader .fx-ring.r2{inset:9px;border-top-color:#fff0a0;border-left-color:#fff2a025;animation:fxRotate 3s linear infinite reverse}
+#faxhub-loader .fx-ring.r3{inset:20px;border:1px dashed #ffffff30;animation:fxRotate 8s linear infinite}
+#faxhub-loader .fx-core{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 10px #ffd21c,0 0 25px #ffd21caa;animation:fxPulse 2s ease-in-out infinite}
+#faxhub-loader .fx-msg{font-size:12px;color:#c3bdcf;min-height:20px}#faxhub-loader .fx-en{direction:ltr;font:10px sans-serif;letter-spacing:2px;color:#77718b;margin-top:6px}
+#faxhub-loader .fx-progress{margin:24px auto 0;width:100%}#faxhub-loader .fx-info{display:flex;justify-content:space-between;direction:ltr;font:10px sans-serif;color:#777;margin-bottom:9px}#faxhub-loader #fx-percent{color:#ffe16b;font-variant-numeric:tabular-nums}
+#faxhub-loader .fx-track{height:3px;background:#ffffff12;border-radius:9px;overflow:hidden}#faxhub-loader #fx-bar{width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#b88600,#ffd21c,#fff1a1);box-shadow:0 0 13px #ffd21c66}
+#faxhub-loader .fx-foot{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:28px;font:9px sans-serif;color:#656071;letter-spacing:2px;direction:ltr}#faxhub-loader .fx-dot{width:5px;height:5px;background:#ffd21c;border-radius:50%;box-shadow:0 0 8px #ffd21c;animation:fxBlink 2s infinite}
+@keyframes fxRotate{to{transform:rotate(360deg)}}@keyframes fxPulse{0%,100%{transform:scale(.8);opacity:.7}50%{transform:scale(1.3);opacity:1}}@keyframes fxGradient{to{background-position:200% center}}@keyframes fxCardIn{from{opacity:0;transform:translateY(20px) scale(.97);filter:blur(6px)}to{opacity:1;transform:none;filter:blur(0)}}@keyframes fxBlink{50%{opacity:.3}}
+@media(max-width:480px){#faxhub-loader .fx-card{padding:32px 24px 27px}#faxhub-loader .fx-logo{font-size:35px}}
+@media(prefers-reduced-motion:reduce){#faxhub-loader *,#faxhub-loader *::before{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+</head><body>
+<div id="faxhub-loader" aria-label="در حال بارگذاری FAXHUB">
+ <div class="fx-bg"></div><div class="fx-glow"></div><div class="fx-glow two"></div>
+ <main class="fx-card"><div class="fx-logo">FAXHUB</div><div class="fx-tag">SIMPLE · FAST · SECURE</div>
+ <div class="fx-spinner"><div class="fx-ring"></div><div class="fx-ring r2"></div><div class="fx-ring r3"></div><div class="fx-core"></div></div>
+ <div class="fx-msg" id="fx-message">در حال آماده‌سازی...</div><div class="fx-en" id="fx-sub">INITIALIZING</div>
+ <div class="fx-progress"><div class="fx-info"><span>LOADING</span><span id="fx-percent">0%</span></div><div class="fx-track"><div id="fx-bar"></div></div></div>
+ <div class="fx-foot"><div class="fx-dot"></div>FAXHUB SYSTEMS</div></main></div><div class="theme-panel" id="themePanel"><div class="theme-title">🎨 انتخاب تم FAX</div><div class="theme-grid"> <button class="theme-btn" data-theme-choice="dark">⚫ مشکی</button><button class="theme-btn" data-theme-choice="light">☀️ روشن</button><button class="theme-btn" data-theme-choice="ocean">🔵 اقیانوسی</button><button class="theme-btn" data-theme-choice="purple">🟣 بنفش</button><button class="theme-btn" data-theme-choice="green">🟢 سبز</button><button class="theme-btn" data-theme-choice="rose">🌸 صورتی</button></div></div>
+
+<div class="app"><header class="header">
+<div class="brand"><div class="logo">X</div><div>هوش مصنوعی FAX</div></div>
+<button class="menuBtn" onclick="toggleMenu()" aria-label="منو"><i></i><i></i><i></i></button>
+<div id="menu" class="menu">
+<div class="menuHead"><div class="miniLogo">X</div><div><b>هوش مصنوعی FAX</b><small>محیط گفت‌وگوی هوش مصنوعی</small></div></div>
+<div class="menuSection">سازندگان</div>
+<div class="creator"><div class="creatorAvatar">ا</div><div><b>امیر</b><small>سازنده</small></div></div>
+<div class="creator"><div class="creatorAvatar">ش</div><div><b>شهاب</b><small>سازنده</small></div></div>
+<div class="menuSection">ظاهر</div><button type="button" onclick="toggleThemePanel()">🎨 انتخاب تم</button><button type="button" id="uiModeBtn" onclick="toggleUiMode()">🖥️ رابط کاربری</button><div class="menuSection">ابزارها</div><button id="xPersonalBtn" type="button">⚙️ شخصی‌سازی</button><button id="xMemoryBtn" type="button">🧠 حافظه</button><div class="menuSection">گفتگو</div><button onclick="newChatAndClose()">＋ چت جدید</button><button onclick="openHistory()">🕘 تاریخچه گفتگوها</button>
+</div></header>
+<main class="chat"><div class="chatTop"><div class="chatTitle"><b id="chatName">هوش مصنوعی FAX</b><small>گفت‌وگوی هوشمند</small></div><button class="newBtn" onclick="newChat()">＋ چت جدید</button></div>
+<div id="imageGenBox" class="web-search-box" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.78);align-items:center;justify-content:center;padding:18px"><div style="width:min(520px,100%);background:#111;border:1px solid #333;border-radius:18px;padding:16px;box-shadow:0 20px 70px #000"><div class="web-search-head"><b>🎨 ساخت تصویر</b><button class="close" style="padding:4px 8px" onclick="closeImageGen()">✕</button></div><textarea id="imagePrompt" style="width:100%;min-height:120px;background:#171717;color:#fff;border:1px solid #333;border-radius:12px;padding:12px;resize:vertical" placeholder="توضیح تصویری که می‌خواهی بسازم..."></textarea><button id="generateImageBtn" class="send" style="width:100%;height:44px;margin-top:10px">ساخت تصویر</button><div id="imageGenStatus" style="margin-top:10px;color:#aaa;font-size:12px"></div><div id="imageGenResult" style="margin-top:12px"></div></div></div><div id="webSearchBox" class="web-search-box"><div class="web-search-head"><b>🌐 جستجوی وب</b><button class="close" style="padding:4px 8px" onclick="closeWebSearch()">✕</button></div><div id="webSearchResults"></div></div><div id="messages" class="messages"></div><div class="composer">
+      <input id="fileInput" type="file" hidden multiple>
+      <div class="plus-wrap">
+        <button class="tool-btn plus-btn" id="plusBtn" type="button" title="ابزارها" aria-label="ابزارها">＋</button>
+        <div class="plus-tools" id="plusTools" aria-hidden="true">
+          <button type="button" id="plusWeb">🌐 <span>وب‌گردی</span></button>
+          <button type="button" id="plusFile">📎 <span>فایل</span></button>
+          <button type="button" id="plusVoice">🎙️ <span>صدا به متن</span></button>
+          <button type="button" id="plusImage">🎨 <span>ساخت تصویر</span></button>
+        </div>
+      </div>
+      <button class="tool-btn" id="attachBtn" title="افزودن فایل" aria-label="افزودن فایل" style="display:none">📎</button>
+      <button class="tool-btn" id="webBtn" title="جستجوی وب" aria-label="جستجوی وب" style="display:none">🌐</button><button class="tool-btn" id="voiceBtn" title="تبدیل صدا به متن" aria-label="تبدیل صدا به متن" style="display:none">🎙️</button><textarea id="input" class="input" placeholder="پیامت رو بنویس..." rows="1"></textarea><button id="stop" class="send stop-btn" title="توقف تولید" aria-label="توقف تولید" style="display:none">⏹</button><button id="send" class="send">➤</button></div></main></div>
+<div id="historyModal" class="history" onclick="if(event.target.id==='historyModal')closeHistory()">
+  <div class="historyBox">
+    <div class="historyHeader"><div><b>🕘 تاریخچه گفتگوها</b><small id="historyCount">۰ گفتگو</small></div><button class="close" onclick="closeHistory()">✕</button></div>
+    <div class="historyTools"><input id="historySearch" placeholder="جستجو در گفتگوها..." autocomplete="off"><button class="historyAction" onclick="newChatAndClose()">＋ چت جدید</button></div>
+    <div class="historyFilters"><button class="historyFilter active" data-filter="all">همه</button><button class="historyFilter" data-filter="pinned">📌 پین‌شده</button></div>
+    <div id="historyList"></div>
+  </div>
+</div>
+<script>
+function uid(){return Date.now()+Math.floor(Math.random()*100000)}
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fmtTime(ts){try{return new Date(ts).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}catch(e){return ''}}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+
+window.FAXAI={
+  config:{endpoint:'https://text.pollinations.ai/openai',apiKey:'',model:'openai',temperature:0.7,auto:true},
+  async send(message,history,signal,options){
+    const onDelta=options?.onDelta;
+    this.config={...(this.config||{}),onDelta};
+    const c=this.config||{};
+    try{
+      const mem=window.FAXMemory?.getContext?.()||'';
+      if(mem) message='[حافظه دائمی کاربر؛ فقط وقتی مرتبط است از آن استفاده کن. حافظه را به کاربر یادآوری نکن مگر اینکه خودش بپرسد]:\n'+mem+'\n\n'+message;
+    }catch(e){}
+    try{ const p=JSON.parse(localStorage.getItem("FAX_personalization_v1")||"{}"); const tone={friendly:"دوستانه و صمیمی",formal:"رسمی و محترمانه",professional:"حرفه‌ای و دقیق",simple:"ساده و قابل‌فهم"}[p.tone]||"طبیعی"; const len={short:"کوتاه و مستقیم",normal:"با جزئیات متعادل",detailed:"مفصل و کامل"}[p.length]||"با جزئیات متعادل"; const lang={fa:"فارسی",en:"انگلیسی",auto:"همان زبان کاربر"}[p.lang]||"فارسی"; const custom=String(p.custom||"").trim(); message="[تنظیمات شخصی کاربر: لحن="+tone+"؛ طول="+len+"؛ زبان="+lang+(custom?"؛ دستور اختصاصی="+custom:"")+"]. این تنظیمات را در پاسخ رعایت کن.\n\n"+message; }catch(e){}
+    const cleanHistory=Array.isArray(history)?history.filter(x=>x&&['user','assistant'].includes(x.role)&&x.content).slice(-14).map(x=>({role:x.role,content:String(x.content).slice(-5000)})):[];
+    const messages=[
+      {role:'system',content:'هویت تو FAX (فکس) است؛ خودت را فقط «FAX» یا «هوش مصنوعی فکس» معرفی کن. اگر کاربر پرسید چه کسی هستی یا چه نامی داری، بگو: «من فکس (FAX) هستم، دستیار هوش مصنوعی این برنامه.» هرگز خودت را ChatGPT، زنوکس، FAX یا محصول/سامانه‌ای با نام دیگر معرفی نکن و نگو توسط OpenAI توسعه یافته‌ای. درباره سازنده‌ات ادعای تأییدنشده نکن. فارسی را طبیعی و دقیق بفهم. برای سؤال‌های سخت، پاسخ را مرحله‌به‌مرحله و روشن بده. اگر سؤال مبهم است، بهترین برداشت منطقی را بیان کن. از پاسخ‌های ساختگی و ادعای دسترسی نداشته به اطلاعات خودداری کن.'},
+      ...cleanHistory,
+      {role:'user',content:String(message).slice(0,12000)}
+    ];
+    const primary=(c.endpoint||'https://text.pollinations.ai/openai').trim();
+    const attempts=[];
+    if(c.apiKey || primary!=='https://text.pollinations.ai/openai') attempts.push({url:primary,kind:'openai'});
+    // اتصال خودکار: دو مسیر رسمی/سازگار Pollinations را امتحان می‌کنیم.
+    attempts.push({url:'https://text.pollinations.ai/openai',kind:'openai'});
+    attempts.push({url:'https://text.pollinations.ai/',kind:'plain'});
+    let lastError='';
+    for(const a of attempts){
+      try{
+        const headers={'Content-Type':'application/json','Accept':'application/json, text/plain, */*'};
+        if(c.apiKey) headers.Authorization='Bearer '+c.apiKey;
+        const body=a.kind==='plain'
+          ? {messages,model:c.model||'openai'}
+          : {model:c.model||'openai',messages,temperature:Number(c.temperature)||0.7,max_tokens:1400,stream:true};
+        const r=await fetch(a.url,{method:'POST',headers,body:JSON.stringify(body),signal});
+        if(!r.ok){
+          const raw=await r.text(); let d=null;try{d=JSON.parse(raw)}catch{}
+          lastError=(d?.error?.message||d?.message||raw||('HTTP '+r.status)).slice(0,700);
+          continue;
+        }
+        const ct=(r.headers.get('content-type')||'').toLowerCase();
+        if(a.kind==='openai' && r.body && (ct.includes('text/event-stream') || ct.includes('application/x-ndjson') || (a.kind==='openai' && body.stream===true))){
+          const reader=r.body.getReader(); const decoder=new TextDecoder(); let buffer=''; let reply='';
+          while(true){
+            const {value,done}=await reader.read(); if(done) break;
+            buffer += decoder.decode(value,{stream:true});
+            const parts=buffer.split(/\r?\n/); buffer=parts.pop()||'';
+            for(const line0 of parts){
+              const line=line0.trim(); if(!line || line.startsWith(':')) continue;
+              const payload=line.startsWith('data:')?line.slice(5).trim():line;
+              if(payload==='[DONE]') continue;
+              let obj=null; try{obj=JSON.parse(payload)}catch{continue}
+              const delta=obj?.choices?.[0]?.delta?.content ?? obj?.choices?.[0]?.text ?? obj?.content ?? '';
+              if(delta){ reply+=String(delta); try{c.onDelta?.(String(delta),reply)}catch{} }
+            }
+          }
+          if(reply.trim()) return {reply:reply.trim(),demo:false,configured:true,provider:'Pollinations',streamed:true};
+          lastError='سرویس پاسخ جریانی خالی برگرداند.';
+          continue;
+        }
+        const raw=await r.text();
+        let d=null;try{d=JSON.parse(raw)}catch{}
+        const reply=(d?.choices?.[0]?.message?.content??d?.choices?.[0]?.text??d?.output_text??d?.response??(typeof d==='string'?d:'')??'') || raw || '';
+        if(String(reply).trim()) return {reply:String(reply).trim(),demo:false,configured:true,provider:'Pollinations'};
+        lastError='سرویس پاسخ قابل خواندن برنگرداند.';
+      }catch(e){
+        // اگر کاربر «توقف تولید» را زده، به هیچ مسیر جایگزینی نرو.
+        // قبلاً AbortError گرفته می‌شد و حلقه می‌توانست درخواست fallback بعدی را شروع کند.
+        if(signal?.aborted) throw e;
+        lastError=e?.message||'خطای شبکه';
+      }
+    }
+    if(signal?.aborted) throw new DOMException('Generation stopped','AbortError');
+    return {reply:'❌ FAX AI نتوانست پاسخ بگیرد.\n\n'+lastError+'\n\nاتصال خودکار چند مسیر AI را امتحان کرد. اگر این شبکه دسترسی مستقیم به سرویس را مسدود می‌کند، یک API/Proxy سازگار با OpenAI را در تنظیمات وارد کن.',demo:false,error:true};
+  }
+};
+window.FAXImage={
+  endpoint:'https://api.openai.com/v1/images/generations',
+  model:'gpt-image-2',
+  async generate(prompt){
+    const cfg=window.FAXAI?.config||{};
+    const saved=JSON.parse(localStorage.getItem('FAX_ai_settings_frontend')||'{}');
+    const endpoint=(saved.imageEndpoint||'https://api.openai.com/v1/images/generations').trim();
+    const apiKey=(cfg.apiKey||saved.apiKey||'').trim();
+    if(!apiKey) throw new Error('برای ساخت تصویر، API Key سرویس تصویر را در تنظیمات وارد کن.');
+    const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({model:saved.imageModel||'gpt-image-2',prompt:String(prompt).slice(0,4000),size:'1024x1024'})});
+    const raw=await r.text(); let d=null; try{d=JSON.parse(raw)}catch{}
+    if(!r.ok) throw new Error((d?.error?.message||d?.message||raw||('HTTP '+r.status)).slice(0,700));
+    const url=d?.data?.[0]?.url||d?.data?.[0]?.b64_json;
+    if(!url) throw new Error('سرویس تصویر خروجی قابل نمایش برنگرداند.');
+    return url;
+  }
+};
+function closeImageGen(){const b=$('imageGenBox');if(b)b.style.display='none';}
+async function openImageGen(){
+  const b=$('imageGenBox'); if(!b)return; b.style.display='flex'; $('imagePrompt').focus();
+}
+async function generateImageFromUI(){
+  const prompt=$('imagePrompt').value.trim(), status=$('imageGenStatus'), result=$('imageGenResult'), btn=$('generateImageBtn');
+  if(!prompt){status.textContent='اول توضیح تصویر را بنویس.';return;}
+  status.textContent='در حال ساخت تصویر...'; result.innerHTML=''; btn.disabled=true;
+  try{
+    const out=await window.FAXImage.generate(prompt);
+    const src=out.startsWith('data:')?out:'data:image/png;base64,'+out;
+    result.innerHTML='<img src="'+src+'" alt="تصویر تولیدشده" style="display:block;width:100%;border-radius:14px;border:1px solid #333">';
+    status.textContent='تصویر ساخته شد ✓';
+  }catch(e){status.textContent='❌ '+(e.message||'خطا در ساخت تصویر');}
+  finally{btn.disabled=false;}
+}
+function loadAISettings(){
+  try{
+    const s=JSON.parse(localStorage.getItem('FAX_ai_settings_frontend')||'{}');
+    if(s.name)$('aiName').value=s.name;
+    if(s.welcome)$('aiWelcome').value=s.welcome;
+    $('aiEndpoint').value=s.endpoint||'https://text.pollinations.ai/openai';
+    $('aiKey').value=s.apiKey||'';
+    $('aiModel').value=s.model||'openai';
+    $('aiTemperature').value=s.temperature??0.7;
+    window.FAXAI.config={endpoint:$('aiEndpoint').value.trim(),apiKey:s.apiKey||'',model:$('aiModel').value.trim()||'openai',temperature:s.temperature??0.7,auto:s.auto!==false};
+  }catch(e){
+    window.FAXAI.config={endpoint:'https://text.pollinations.ai/openai',apiKey:'',model:'openai',temperature:0.7,auto:true};
+  }
+  updateAIModeLabel();
+}
+function updateAIModeLabel(){
+  const c=window.FAXAI.config||{};
+  const auto=!c.apiKey&&(!c.endpoint||c.endpoint==='https://text.pollinations.ai/openai');
+  ['aiModeLabel','aiModeLabel2'].forEach(id=>{const el=$(id);if(el)el.textContent=auto?'اتصال خودکار AI':(c.endpoint?'API / Proxy اختصاصی':'تنظیم نشده');});
+}
+function saveAISettings(){
+  const endpoint=$('aiEndpoint').value.trim()||'https://text.pollinations.ai/openai';
+  const apiKey=$('aiKey').value.trim();
+  const model=$('aiModel').value.trim()||'openai';
+  const temperature=Math.min(2,Math.max(0,Number($('aiTemperature').value)||0.7));
+  window.FAXAI.config={endpoint,apiKey,model,temperature,auto:!apiKey&&endpoint==='https://text.pollinations.ai/openai'};
+  localStorage.setItem('FAX_ai_settings_frontend',JSON.stringify({name:$('aiName').value,welcome:$('aiWelcome').value,endpoint,apiKey,model,temperature,auto:window.FAXAI.config.auto}));
+  updateAIModeLabel();toast('تنظیمات AI ذخیره شد ✓');
+}
+function autoConnectAI(){
+  window.FAXAI.config={endpoint:'https://text.pollinations.ai/openai',apiKey:'',model:'openai',temperature:0.7,auto:true};
+  localStorage.setItem('FAX_ai_settings_frontend',JSON.stringify({name:$('aiName').value,welcome:$('aiWelcome').value,endpoint:'https://text.pollinations.ai/openai',apiKey:'',model:'openai',temperature:0.7,auto:true}));
+  $('aiEndpoint').value='https://text.pollinations.ai/openai';$('aiKey').value='';$('aiModel').value='openai';$('aiTemperature').value='0.7';updateAIModeLabel();toast('اتصال خودکار FAX AI فعال شد ✓');
+}
+
+
+/* ---- Conversation management ---- */
+function activeConv(){return db.conversations.find(c=>c.id===db.currentConvId)}
+function aiNewConv(){
+  const c={id:uid(),title:'گفتگوی جدید',createdAt:Date.now(),updatedAt:Date.now(),messages:[{id:uid(),role:'assistant',content:$('aiWelcome')?$('aiWelcome').value:'سلام! من فکس (FAX) هستم. چطور کمکت کنم؟',timestamp:Date.now()}]};
+  db.conversations.unshift(c);db.currentConvId=c.id;save();renderConvList();renderConv();
+}
+function aiClearConv(){const c=activeConv();if(!c)return;if(!confirm('پیام‌های این گفتگو پاک شود؟'))return;c.messages=[];save();renderConv()}
+function aiDeleteConv(id,ev){ev.stopPropagation();if(!confirm('این گفتگو حذف شود؟'))return;db.conversations=db.conversations.filter(c=>c.id!==id);if(db.currentConvId===id)db.currentConvId=db.conversations[0]?.id||null;save();renderConvList();renderConv()}
+function aiSelectConv(id){db.currentConvId=id;save();renderConvList();renderConv()}
+function renderConvList(){
+  const q=($('aiSearchConv').value||'').toLowerCase();
+  const list=db.conversations.filter(c=>!q||c.title.toLowerCase().includes(q)||c.messages.some(m=>m.content.toLowerCase().includes(q)));
+  $('aiConvList').innerHTML=list.length?list.map(c=>`<div class="ai-convItem ${c.id===db.currentConvId?'active':''}" onclick="aiSelectConv(${c.id})"><span class="t">${esc(c.title)}</span><button onclick="aiDeleteConv(${c.id},event)" title="حذف">✕</button></div>`).join(''):'<div class="muted" style="padding:10px">چتی وجود ندارد</div>';
+}
+function codeHighlight(code,lang){
+  let out=esc(code);
+  // Highlight common syntax while preserving safe escaped source.
+  out=out.replace(/(\/\/[^\n]*|#[^\n]*)/g,'<span class="tok-comment">$1</span>');
+  out=out.replace(/(&quot;.*?&quot;|&#39;.*?&#39;|".*?"|'.*?')/g,'<span class="tok-string">$1</span>');
+  out=out.replace(/\b(function|return|const|let|var|if|else|for|while|class|new|try|catch|def|print|import|from|in|True|False|None|async|await|break|continue)\b/g,'<span class="tok-key">$1</span>');
+  out=out.replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="tok-num">$1</span>');
+  out=out.replace(/\b([A-Za-z_$][\w$]*)(?=\s*\()/g,'<span class="tok-fn">$1</span>');
+  return out;
+}
+function mdRender(text){
+  text=String(text??'').replace(/\r\n?/g,'\n');
+  const re=/```([^\n`]*)\n([\s\S]*?)(?:\n)?```|```([^\n`]*)$/g;
+  let result='',last=0,m;
+  while((m=re.exec(text))!==null){
+    result+=renderTextMd(text.slice(last,m.index));
+    const id='code'+uid(),lang=(m[1]??m[3]??'code').trim()||'code';
+    const code=(m[2]??'').replace(/\n$/,'');
+    result+=`<div class="ai-code" id="${id}"><div class="ai-code-head"><span class="ai-code-lang">${esc(lang)}</span><button type="button" class="ai-code-copy" onclick="copyCode('${id}')"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2H5a2 2 0 0 0-2v11a2 2 0 0 0 2h3"/></svg><span>کپی کد</span></button></div><pre><code>${codeHighlight(code,lang)}</code></pre></div>`;
+    last=re.lastIndex;
+  }
+  result+=renderTextMd(text.slice(last));return result;
+}
+function renderTextMd(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br>')}
+async function copyCode(id){
+  const box=document.getElementById(id);
+  const code=box?.querySelector('pre code');
+  if(!code){toast('کد پیدا نشد');return}
+  const text=code.innerText||code.textContent||'';
+  try{
+    if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text)}
+    else throw new Error('clipboard unavailable');
+    toast('کد با موفقیت کپی شد');
+  }catch(e){
+    const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');
+    ta.style.position='fixed';ta.style.opacity='0';ta.style.left='-9999px';
+    document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}
+    document.body.removeChild(ta);
+    if(ok)toast('کد با موفقیت کپی شد');else toast('کپی خودکار نشد؛ کد را انتخاب و کپی کن');
+  }
+}
+async function copyMsgEncoded(encoded){
+  let text='';try{text=decodeURIComponent(encoded)}catch(e){text=encoded}
+  try{
+    if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);toast('پیام کپی شد');return}
+  }catch(e){}
+  const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');
+  ta.style.position='fixed';ta.style.top='0';ta.style.left='-9999px';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+  let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+  ta.remove();toast(ok?'پیام کپی شد':'کپی خودکار انجام نشد؛ متن را دستی کپی کن');
+}
+function copyMsg(text){return copyMsgEncoded(encodeURIComponent(String(text??'')))}
+function renderConv(){
+  const c=activeConv();
+  updateAIModeLabel();
+  if(!c){$('aiConvTitle').textContent='بدون گفتگو';$('aiMessages').innerHTML='<div class="empty">برای شروع، روی «چت جدید» بزن.</div>';return}
+  $('aiConvTitle').textContent=c.title;
+  $('aiMessages').innerHTML=c.messages.map(m=>`<div class="ai-msg ${m.role==='user'?'ai-user':'ai-bot'}" data-id="${m.id}">${mdRender(m.content)}<span class="msgTime">${fmtTime(m.timestamp)}</span>
+    <div class="msgActions">
+      <button onclick="copyMsgEncoded('${encodeURIComponent(String(m.content??''))}')">کپی</button>
+      ${m.role==='user'?`<button onclick="editMsg(${c.id},${m.id})">ویرایش</button>`:`<button onclick="regenMsg(${c.id})">Regenerate</button>`}
+    </div></div>`).join('');
+  $('aiMessages').scrollTop=$('aiMessages').scrollHeight;
+}
+async function aiSendMessage(){
+  let c=activeConv();
+  if(!c){aiNewConv();c=activeConv();}
+  const input=$('aiInput');const text=input.value.trim();
+  try{window.FAXMemoryLearn?.(text)}catch(e){}if(!text)return;window.FAXMemoryLearn?.(text);
+  input.value='';input.disabled=true;$('aiSend').disabled=true;
+  const um={id:uid(),role:'user',content:text,timestamp:Date.now()};
+  c.messages.push(um);
+  if(c.messages.filter(m=>m.role==='user').length===1)c.title=text.slice(0,28)||'گفتگوی جدید';
+  c.updatedAt=Date.now();save();renderConvList();renderConv();
+  const typing=document.createElement('div');typing.className='typing';typing.innerHTML='<span></span><span></span><span></span>';
+  $('aiMessages').appendChild(typing);$('aiMessages').scrollTop=$('aiMessages').scrollHeight;
+  try{
+    const history=c.messages.slice(-12).map(m=>({role:m.role,content:m.content}));
+    const result=await window.FAXAI.send(text,history,c.serverConversationId);
+    if(result.serverConversationId)c.serverConversationId=result.serverConversationId;
+    const reply=result.reply;
+    typing.remove();
+    c.messages.push({id:uid(),role:'assistant',content:reply,timestamp:Date.now()});
+    save();renderConv();
+  }catch(e){
+    typing.remove();
+    c.messages.push({id:uid(),role:'assistant',content:'⚠️ خطایی رخ داد. دوباره تلاش کن.',timestamp:Date.now()});
+    save();renderConv();
+  }finally{input.disabled=false;$('aiSend').disabled=false;input.focus();}
+}
+function editMsg(convId,msgId){
+  const c=db.conversations.find(x=>x.id===convId);const m=c.messages.find(x=>x.id===msgId);if(!m)return;
+  const val=prompt('ویرایش پیام:',m.content);if(val===null||!val.trim())return;
+  m.content=val.trim();
+  const idx=c.messages.findIndex(x=>x.id===msgId);
+  c.messages=c.messages.slice(0,idx+1); // drop subsequent replies, resend
+  save();renderConv();
+  $('aiInput').value='';regenFrom(c,m.content);
+}
+async function regenFrom(c,text){
+  const typing=document.createElement('div');typing.className='typing';typing.innerHTML='<span></span><span></span><span></span>';
+  $('aiMessages').appendChild(typing);$('aiMessages').scrollTop=$('aiMessages').scrollHeight;
+  const history=c.messages.slice(-12).map(m=>({role:m.role,content:m.content}));
+  const result=await window.FAXAI.send(text,history,c.serverConversationId);
+  if(result.serverConversationId)c.serverConversationId=result.serverConversationId;
+  const reply=result.reply;
+  typing.remove();
+  c.messages.push({id:uid(),role:'assistant',content:reply,timestamp:Date.now()});
+  save();renderConv();
+}
+function regenMsg(convId){
+  const c=db.conversations.find(x=>x.id===convId);
+  const lastUser=[...c.messages].reverse().find(m=>m.role==='user');
+  if(!lastUser)return;
+  // remove the last assistant message(s) after that user message
+  const idx=c.messages.findIndex(m=>m.id===lastUser.id);
+  c.messages=c.messages.slice(0,idx+1);
+  save();renderConv();
+  regenFrom(c,lastUser.content);
+}
+
+
+
+const KEY='FAX';const LEGACY_KEY='FAX_db_v4';const initial={conversations:[],currentConvId:null};let db=load();
+function load(){try{let raw=localStorage.getItem(KEY);if(raw===null){const legacy=localStorage.getItem(LEGACY_KEY);if(legacy!==null){localStorage.setItem(KEY,legacy);raw=legacy;}}const d=JSON.parse(raw);return d&&typeof d==='object'?Object.assign({},initial,d):{...initial}}catch(e){return {...initial}}}
+function toggleMenu(){$('menu').classList.toggle('open')}function newChatAndClose(){newChat();$('menu').classList.remove('open')}
+function openHistory(){$('menu').classList.remove('open');renderHistory();$('historyModal').classList.add('open')}function closeHistory(){$('historyModal').classList.remove('open')}
+function activeConv(){return db.conversations.find(c=>c.id===db.currentConvId)}
+function syncMessages(){const c=activeConv(),box=$('messages');if(!c){box.innerHTML='<div class="empty">برای شروع، «چت جدید» را بزن.</div>';return}box.innerHTML=c.messages.map(m=>`<div class="msg ${m.role==='user'?'user':'bot'}">${mdRender(m.content)}<span class="msgTime">${fmtTime(m.timestamp)}</span><div class="actions"><button onclick="copyMsgEncoded('${encodeURIComponent(String(m.content??''))}')">کپی</button>${m.role==='user'?`<button onclick="editMainMsg(${c.id},${m.id})">ویرایش</button>`:''}</div></div>`).join('');box.scrollTop=box.scrollHeight}
+function editMainMsg(convId,msgId){
+  const c=db.conversations.find(x=>String(x.id)===String(convId));
+  if(!c)return;
+  const m=c.messages.find(x=>String(x.id)===String(msgId));
+  if(!m || m.role!=='user')return;
+  const val=prompt('ویرایش پیام:',m.content);
+  if(val===null || !val.trim())return;
+  const idx=c.messages.findIndex(x=>String(x.id)===String(msgId));
+  m.content=val.trim();
+  c.messages=c.messages.slice(0,idx+1);
+  c.updatedAt=Date.now();
+  save();syncMessages();syncTitle();
+  regenMainFrom(c,m.content);
+}
+async function regenMainFrom(c,text){
+  const box=$('messages'),typing=document.createElement('div');
+  typing.className='typing';typing.innerHTML='<span></span><span></span><span></span>';
+  box.appendChild(typing);box.scrollTop=box.scrollHeight;
+  try{
+    const history=c.messages.slice(-12).map(m=>({role:m.role,content:m.content}));
+    const result=await window.FAXAI.send(text,history,c.serverConversationId);
+    if(result.serverConversationId)c.serverConversationId=result.serverConversationId;
+    typing.remove();
+    c.messages.push({id:uid(),role:'assistant',content:result.reply,timestamp:Date.now()});
+    c.updatedAt=Date.now();save();syncMessages();
+  }catch(e){
+    typing.remove();
+    c.messages.push({id:uid(),role:'assistant',content:'⚠️ ارسال دوباره پیام ناموفق بود.',timestamp:Date.now()});
+    c.updatedAt=Date.now();save();syncMessages();
+  }
+}
+function syncTitle(){const c=activeConv();$('chatName').textContent=c?.title||'هوش مصنوعی FAX'}
+function newChat(){const c={id:uid(),title:'گفتگوی جدید',createdAt:Date.now(),updatedAt:Date.now(),messages:[{id:uid(),role:'assistant',content:'سلام! من فکس (FAX) هستم. چطور کمکت کنم؟',timestamp:Date.now()}]};db.conversations.unshift(c);db.currentConvId=c.id;save();syncMessages();syncTitle()}
+let activeFAXController=null;
+function setGenerating(on){
+  const stop=$('stop'),sendBtn=$('send'),input=$('input');
+  // Force the correct action button to be visible even if theme/layout CSS overrides display.
+  if(stop){
+    stop.style.setProperty('display',on?'inline-flex':'none','important');
+    stop.style.setProperty('visibility',on?'visible':'hidden','important');
+    stop.setAttribute('aria-hidden',on?'false':'true');
+    stop.disabled=!on;
+  }
+  if(sendBtn){
+    sendBtn.style.setProperty('display',on?'none':'inline-flex','important');
+    sendBtn.style.setProperty('visibility',on?'hidden':'visible','important');
+    sendBtn.setAttribute('aria-hidden',on?'true':'false');
+    sendBtn.disabled=on;
+  }
+  if(input) input.disabled=on;
+}
+function stopGeneration(){
+  const controller=activeFAXController;
+  if(!controller)return;
+  controller.abort();
+  activeFAXController=null;
+  setGenerating(false);
+  const box=$('messages');
+  const typing=box?.querySelector('.typing');
+  if(typing)typing.remove();
+}
+function send(){
+  let c=activeConv();
+  if(!c){newChat();c=activeConv()}
+  const input=$('input'),text=input.value.trim();
+  if(!text || activeFAXController)return;
+  input.value='';
+  input.style.height='auto';
+  input.style.height='';
+  c.messages.push({id:uid(),role:'user',content:text,timestamp:Date.now()});
+  if(c.messages.filter(m=>m.role==='user').length===1)c.title=text.slice(0,28)||'گفتگوی جدید';
+  c.updatedAt=Date.now();save();syncMessages();syncTitle();
+  if(document.getElementById('historyModal')?.classList.contains('open'))renderHistory();
+  const box=$('messages');
+  const typing=document.createElement('div');
+  typing.className='typing';typing.innerHTML='<span></span><span></span><span></span>';
+  box.appendChild(typing);box.scrollTop=box.scrollHeight;
+  const controller=new AbortController();
+  activeFAXController=controller;setGenerating(true);
+  let streamEl=null,streamText='';
+  const showStream=()=>{
+    if(!streamEl){
+      typing.remove();
+      streamEl=document.createElement('div');
+      streamEl.className='msg bot streaming-msg';
+      streamEl.innerHTML='<span class="stream-cursor">▌</span>';
+      box.appendChild(streamEl);
+    }
+    streamEl.innerHTML=mdRender(streamText)+'<span class="stream-cursor">▌</span>';
+    box.scrollTop=box.scrollHeight;
+  };
+  (async()=>{
+    try{
+      const history=c.messages.slice(-12).map(m=>({role:m.role,content:m.content}));
+      const result=await window.FAXAI.send(text,history,controller.signal,{onDelta:(delta,full)=>{streamText=full;showStream()}});
+      if(controller.signal.aborted)return;
+      if(result.serverConversationId)c.serverConversationId=result.serverConversationId;
+      if(!streamText)streamText=result.reply||'';
+      if(streamEl)streamEl.remove(); else typing.remove();
+      c.messages.push({id:uid(),role:'assistant',content:streamText,timestamp:Date.now()});
+      c.updatedAt=Date.now();save();syncMessages();
+      if(document.getElementById('historyModal')?.classList.contains('open'))renderHistory();
+    }catch(e){
+      if(controller.signal.aborted)return;
+      if(streamEl)streamEl.remove(); else typing.remove();
+      c.messages.push({id:uid(),role:'assistant',content:'⚠️ خطایی رخ داد. دوباره تلاش کن.',timestamp:Date.now()});
+      c.updatedAt=Date.now();save();syncMessages();
+      if(document.getElementById('historyModal')?.classList.contains('open'))renderHistory();
+    }finally{
+      if(activeFAXController===controller)activeFAXController=null;
+      setGenerating(false);input.focus();
+    }
+  })();
+}
+$('stop').onclick=stopGeneration;
+let historyQuery='';
+let historyFilter='all';
+function renderHistory(){
+  const list=$('historyList'); if(!list)return;
+  const q=historyQuery.trim().toLowerCase();
+  let items=db.conversations.filter(c=>{
+    if(historyFilter==='pinned'&&!c.pinned)return false;
+    if(!q)return true;
+    return [c.title,...(c.messages||[]).map(m=>m.content||'')].join(' ').toLowerCase().includes(q);
+  });
+  items.sort((a,b)=>{
+    if(Boolean(a.pinned)!==Boolean(b.pinned))return a.pinned?-1:1;
+    return (b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0);
+  });
+  $('historyCount').textContent=`${faNum(items.length)} گفتگو`;
+  if(!items.length){list.innerHTML='<div class="historyEmpty">گفتگویی مطابق جستجو پیدا نشد.</div>';return}
+
+  const now=new Date();
+  const startToday=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
+  const startYesterday=startToday-86400000;
+  const groups=[['today','امروز'],['yesterday','دیروز'],['older','قدیمی‌تر']];
+  const buckets={today:[],yesterday:[],older:[]};
+
+  items.forEach(c=>{
+    const t=c.updatedAt||c.createdAt||0;
+    if(t>=startToday)buckets.today.push(c);
+    else if(t>=startYesterday)buckets.yesterday.push(c);
+    else buckets.older.push(c);
+  });
+
+  const row=c=>{
+    const count=(c.messages||[]).filter(m=>m.role==='user').length;
+    const active=String(c.id)===String(db.currentConvId);
+    const preview=(c.messages||[]).filter(m=>m.role==='user').slice(-1)[0]?.content||'گفتگوی جدید';
+    return `<div class="hrow" style="${active?'background:#171717':''}">
+      <div class="hmain" onclick="openChatFromHistory(${JSON.stringify(c.id)})">
+        <span class="htitle">${c.pinned?'📌 ':''}${esc(c.title||'گفتگوی جدید')}</span>
+        <span class="hmeta">${fmtDate(c.updatedAt||c.createdAt)} · ${faNum(count)} پیام کاربر</span>
+        <span class="hpreview">${esc(String(preview).slice(0,70))}</span>
+      </div>
+      <div class="hactions">
+        <button class="hicon" title="${c.pinned?'برداشتن پین':'پین کردن'}" onclick="pinChat(${JSON.stringify(c.id)})">${c.pinned?'📍':'📌'}</button>
+        <button class="hicon" title="تغییر نام" onclick="renameChat(${JSON.stringify(c.id)})">✏️</button>
+        <button class="hicon danger" title="حذف" onclick="deleteChat(${JSON.stringify(c.id)})">🗑️</button>
+      </div>
+    </div>`;
+  };
+
+  let html='';
+  groups.forEach(([key,label])=>{
+    if(buckets[key].length) html+=`<div class="historyGroup">${label}</div>`+buckets[key].map(row).join('');
+  });
+  list.innerHTML=html;
+}
+function openHistory(){
+  $('historyModal').classList.add('open');
+  historyQuery=''; historyFilter='all'; $('historySearch').value='';
+  document.querySelectorAll('.historyFilter').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));
+  renderHistory(); setTimeout(()=>$('historySearch')?.focus(),50);
+}
+function closeHistory(){$('historyModal').classList.remove('open')}
+function newChatAndClose(){newChat();closeHistory()}
+$('historySearch')?.addEventListener('input',e=>{historyQuery=e.target.value||'';renderHistory()});
+document.querySelectorAll('.historyFilter').forEach(b=>b.addEventListener('click',()=>{
+  historyFilter=b.dataset.filter||'all';
+  document.querySelectorAll('.historyFilter').forEach(x=>x.classList.toggle('active',x===b));
+  renderHistory();
+}));
+
+
+/* History action handlers: pin, rename, delete, open */
+function findConversationById(id){
+  return (Array.isArray(db.conversations)?db.conversations:[]).find(c=>String(c.id)===String(id));
+}
+function pinChat(id){
+  const c=findConversationById(id); if(!c)return;
+  c.pinned=!Boolean(c.pinned); c.updatedAt=Date.now(); save(); renderHistory();
+}
+function renameChat(id){
+  const c=findConversationById(id); if(!c)return;
+  const next=window.prompt('نام جدید گفتگو را وارد کن:',c.title||'گفتگوی جدید');
+  if(next===null)return;
+  const title=String(next).trim(); if(!title)return;
+  c.title=title.slice(0,100); c.updatedAt=Date.now(); save(); renderHistory();
+  if(String(db.currentConvId)===String(c.id))syncTitle();
+}
+function deleteChat(id){
+  const c=findConversationById(id); if(!c)return;
+  if(!window.confirm('این گفتگو برای همیشه حذف شود؟'))return;
+  db.conversations=db.conversations.filter(x=>String(x.id)!==String(id));
+  const wasCurrent=String(db.currentConvId)===String(id);
+  if(wasCurrent){
+    if(db.conversations.length){db.currentConvId=db.conversations[0].id;save();syncMessages();syncTitle();}
+    else {save();newChat();}
+  } else save();
+  renderHistory();
+}
+function openChatFromHistory(id){
+  const c=findConversationById(id); if(!c)return;
+  db.currentConvId=c.id; save(); syncMessages(); syncTitle(); closeHistory();
+}
+
+/* Reliable history renderer override */
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  if(!list) return;
+  let conversations=Array.isArray(db.conversations)?db.conversations:[];
+  const q=String(historyQuery||'').trim().toLocaleLowerCase('fa');
+  conversations=conversations.filter(c=>{
+    if(historyFilter==='pinned'&&!c.pinned)return false;
+    const text=[c.title||'',...(Array.isArray(c.messages)?c.messages.map(m=>m&&m.content||''):[])].join(' ').toLocaleLowerCase('fa');
+    return !q||text.includes(q);
+  }).sort((a,b)=>Number(Boolean(b.pinned))-Number(Boolean(a.pinned)) || ((b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0)));
+  const counter=document.getElementById('historyCount');
+  if(counter)counter.textContent=(typeof faNum==='function'?faNum(conversations.length):conversations.length)+' گفتگو';
+  if(!conversations.length){list.innerHTML='<div class="historyEmpty">'+(q?'گفتگویی مطابق جستجو پیدا نشد.':'هنوز گفتگویی ذخیره نشده است.')+'</div>';return;}
+  list.innerHTML=conversations.map(c=>{
+    const id=JSON.stringify(c.id);
+    const users=(c.messages||[]).filter(m=>m&&m.role==='user');
+    const preview=users.length?(users[users.length-1].content||''):'گفتگوی جدید';
+    const date=c.updatedAt||c.createdAt;
+    const title=esc(c.title||'گفتگوی جدید');
+    return `<div class="hrow"><div class="hmain" onclick="openChatFromHistory(${id})"><span class="htitle">${c.pinned?'📌 ':''}${title}</span><span class="hmeta">${date&&typeof fmtDate==='function'?fmtDate(date):''} · ${users.length} پیام کاربر</span><span class="hpreview">${esc(String(preview).slice(0,90))}</span></div><div class="hactions"><button class="hicon" onclick="pinChat(${id})" title="پین">${c.pinned?'📍':'📌'}</button><button class="hicon" onclick="renameChat(${id})" title="تغییر نام">✏️</button><button class="hicon danger" onclick="deleteChat(${id})" title="حذف">🗑️</button></div></div>`;
+  }).join('');
+}
+function openHistory(){
+  const modal=document.getElementById('historyModal'); if(!modal)return;
+  document.getElementById('menu')?.classList.remove('open');
+  historyQuery='';historyFilter='all';
+  const search=document.getElementById('historySearch');if(search)search.value='';
+  document.querySelectorAll('.historyFilter').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));
+  renderHistory();modal.classList.add('open');
+}
+
+$('send').onclick=send;const chatInput=$('input');function FAXresizeComposer(){chatInput.style.setProperty('height','30px','important');const max=120;const target=Math.min(Math.max(chatInput.scrollHeight,30),max);chatInput.style.setProperty('height',target+'px','important');chatInput.style.setProperty('overflow-y',chatInput.scrollHeight>max?'auto':'hidden','important')}chatInput.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send()}});chatInput.addEventListener('input',FAXresizeComposer);chatInput.addEventListener('focus',FAXresizeComposer);window.addEventListener('resize',FAXresizeComposer);FAXresizeComposer();document.addEventListener('click',e=>{if(!e.target.closest('.menu')&&!e.target.closest('.menuBtn'))$('menu').classList.remove('open')});
+if(!db.conversations.length)newChat();else{db.currentConvId=db.currentConvId||db.conversations[0].id;syncMessages();syncTitle()}
+</script>
+<script>
+(function(){
+  const fileInput=document.getElementById('fileInput');
+  const attachBtn=document.getElementById('attachBtn');
+  const voice=document.getElementById('voiceBtn');
+  const textInput=document.getElementById('input');
+  if(fileInput && attachBtn){
+    let attachedFiles=[];
+    const escapeHtml=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+    function renderFileState(){
+      attachBtn.title=attachedFiles.length
+        ? ('فایل انتخاب شده: '+attachedFiles.map(f=>f.name).join('، '))
+        : 'افزودن فایل';
+      attachBtn.setAttribute('aria-label',attachBtn.title);
+      attachBtn.textContent=attachedFiles.length ? '📎✓' : '📎';
+    }
+    attachBtn.addEventListener('click',()=>fileInput.click());
+    fileInput.addEventListener('change',()=>{
+      const incoming=Array.from(fileInput.files||[]);
+      incoming.forEach(f=>{
+        if(!attachedFiles.some(x=>x.name===f.name && x.size===f.size && x.lastModified===f.lastModified)){
+          attachedFiles.push(f);
+        }
+      });
+      if(attachedFiles.length && textInput && !textInput.value.trim()){
+        textInput.value='فایل(ها) انتخاب شد: '+attachedFiles.map(f=>f.name).join('، ')+'\n';
+        textInput.focus();
+      }
+      renderFileState();
+      fileInput.value='';
+    });
+    renderFileState();
+  }
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(voice && textInput){
+    if(!SR){
+      voice.title='تبدیل صدا به متن در این مرورگر پشتیبانی نمی‌شود';
+    }else{
+      const rec=new SR();
+      rec.lang='fa-IR'; rec.interimResults=true; rec.continuous=false;
+      let base='';
+      voice.addEventListener('click',()=>{
+        try{
+          if(voice.classList.contains('recording')){rec.stop();return;}
+          base=textInput.value ? textInput.value+' ' : '';
+          rec.start();
+          voice.classList.add('recording'); voice.textContent='⏹️';
+        }catch(e){}
+      });
+      rec.onresult=e=>{
+        let text='';
+        for(let i=e.resultIndex;i<e.results.length;i++) text+=e.results[i][0].transcript;
+        textInput.value=base+text;
+      };
+      rec.onend=()=>{voice.classList.remove('recording');voice.textContent='🎙️'};
+      rec.onerror=()=>{voice.classList.remove('recording');voice.textContent='🎙️'};
+    }
+  }
+})();
+</script>
+
+<script>
+(function(){
+  const btn=document.getElementById('webBtn');
+  const box=document.getElementById('webSearchBox');
+  const results=document.getElementById('webSearchResults');
+  const input=document.getElementById('input');
+  const send=document.getElementById('send');
+  if(!btn||!box||!results||!input||!send)return;
+
+  let webMode=false;
+
+  function escWeb(s){
+    return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function setWebMode(on){
+    webMode=on;
+    box.classList.toggle('show',on);
+    btn.classList.toggle('recording',on);
+    btn.textContent=on?'🔎':'🌐';
+    input.placeholder=on?'عبارت موردنظر برای جستجو...':'پیامت رو بنویس...';
+    if(on){
+      results.innerHTML='<div class="web-loading">عبارتت رو بنویس و روی ➤ بزن یا Enter کن.</div>';
+      input.focus();
+    }
+  }
+
+  window.closeWebSearch=function(){setWebMode(false);};
+
+  function showExternalSearch(q){
+    const href='https://www.google.com/search?q='+encodeURIComponent(q);
+    results.innerHTML=
+      '<div class="web-loading">جستجوی مستقیم اینترنت از داخل فایل در این شبکه در دسترس نیست.</div>'+
+      '<div class="web-result"><a href="'+href+'" target="_blank" rel="noopener noreferrer">🔎 باز کردن جستجوی وب برای «'+escWeb(q)+'»</a>'+
+      '<p>با این گزینه همان عبارت در موتور جستجو باز می‌شود.</p><span class="domain">google.com</span></div>';
+  }
+
+  async function wikiSearch(q,lang){
+    const host=lang==='fa'?'fa.wikipedia.org':'en.wikipedia.org';
+    const url='https://'+host+'/w/api.php?'+new URLSearchParams({
+      action:'query',list:'search',srsearch:q,srnamespace:'0',
+      srlimit:'8',srprop:'snippet',format:'json',formatversion:'2',origin:'*'
+    }).toString();
+    const r=await fetch(url,{method:'GET',mode:'cors'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    return {items:d?.query?.search||[],host};
+  }
+
+  async function searchWeb(q){
+    if(!q)return;
+    box.classList.add('show');
+    results.innerHTML='<div class="web-loading">🌐 در حال جستجو…</div>';
+    try{
+      let data;
+      try{data=await wikiSearch(q,'fa');}
+      catch(e){data=await wikiSearch(q,'en');}
+
+      if(!data.items.length){showExternalSearch(q);return;}
+
+      results.innerHTML='<div style="font-size:10px;color:#777;margin-bottom:5px">نتایج جستجو</div>'+
+        data.items.map(x=>{
+          const title=String(x.title||'');
+          const href='https://'+data.host+'/wiki/'+encodeURIComponent(title.replace(/ /g,'_'));
+          const snippet=String(x.snippet||'');
+          return '<div class="web-result"><a href="'+href+'" target="_blank" rel="noopener noreferrer">'+
+            escWeb(title)+'</a><p>'+escWeb(snippet)+'</p><span class="domain">'+escWeb(data.host)+'</span></div>';
+        }).join('')+
+        '<div class="web-result"><a href="https://www.google.com/search?q='+encodeURIComponent(q)+'" target="_blank" rel="noopener noreferrer">🔎 ادامه جستجو در کل وب</a></div>';
+    }catch(e){showExternalSearch(q);}
+  }
+
+  btn.addEventListener('click',()=>setWebMode(!webMode));
+
+  input.addEventListener('keydown',e=>{
+    if(webMode && e.key==='Enter'&&(e.ctrlKey||e.metaKey)){
+      e.preventDefault();
+      searchWeb(input.value.trim());
+    }
+  });
+
+  send.addEventListener('click',()=>{
+    if(webMode){
+      const q=input.value.trim();
+      if(q) searchWeb(q);
+      else {results.innerHTML='<div class="web-loading">اول عبارت موردنظر را بنویس.</div>';input.focus();}
+    }
+  });
+})();
+</script>
+
+<div id="xPersonalPanel">
+ <div class="xp-title">شخصی‌سازی FAX</div>
+ <div class="xp-row"><label>لحن پاسخ</label><select id="xpTone"><option value="friendly">دوستانه</option><option value="formal">رسمی</option><option value="professional">حرفه‌ای</option><option value="simple">ساده و قابل‌فهم</option></select></div>
+ <div class="xp-row"><label>طول پاسخ</label><select id="xpLength"><option value="short">کوتاه</option><option value="normal">معمولی</option><option value="detailed">مفصل</option></select></div>
+ <div class="xp-row"><label>زبان پاسخ</label><select id="xpLang"><option value="fa">فارسی</option><option value="en">English</option><option value="auto">همان زبان کاربر</option></select></div>
+ <div class="xp-row"><label>دستور اختصاصی</label><textarea id="xpCustom" placeholder="مثلاً: همیشه ساده و مرحله‌به‌مرحله توضیح بده."></textarea></div>
+ <div class="xp-actions"><button class="xp-save" id="xpSave">ذخیره</button><button class="xp-close" id="xpClose">بستن</button></div>
+ <div class="xp-note">این تنظیمات فقط روی دستور ارسالی به AI اثر می‌گذارد و آدرس/سرور فعلی چت FAX را تغییر نمی‌دهد.</div>
+</div>
+<script id="FAX-personalization-js">(function(){const btn=document.getElementById('xPersonalBtn'),panel=document.getElementById('xPersonalPanel');if(!btn||!panel)return;const tone=document.getElementById('xpTone'),length=document.getElementById('xpLength'),lang=document.getElementById('xpLang'),custom=document.getElementById('xpCustom');function load(){try{const p=JSON.parse(localStorage.getItem('FAX_personalization_v1')||'{}');tone.value=p.tone||'friendly';length.value=p.length||'normal';lang.value=p.lang||'fa';custom.value=p.custom||''}catch(e){}}btn.onclick=()=>{load();panel.classList.toggle('open')};document.getElementById('xpClose').onclick=()=>panel.classList.remove('open');document.getElementById('xpSave').onclick=()=>{localStorage.setItem('FAX_personalization_v1',JSON.stringify({tone:tone.value,length:length.value,lang:lang.value,custom:custom.value.trim()}));panel.classList.remove('open');btn.textContent='⚙️ شخصی‌سازی ✓'};load()})();</script><script id="FAX-themes-js">(()=>{const K="FAX_theme_v1",panel=document.getElementById("themePanel");function set(t){document.documentElement.dataset.theme=t;localStorage.setItem(K,t);document.querySelectorAll(".theme-btn").forEach(b=>b.classList.toggle("active",b.dataset.themeChoice===t));}set(localStorage.getItem(K)||"dark");window.toggleThemePanel=function(){panel.classList.toggle("show");};document.querySelectorAll(".theme-btn").forEach(b=>b.onclick=()=>{set(b.dataset.themeChoice);panel.classList.remove("show")});})();</script>
+<div id="xMemoryPanel">
+  <div class="xm-title">🧠 حافظه FAX</div>
+  <div class="xm-sub">اطلاعاتی که می‌خواهی FAX در گفتگوهای بعدی به یاد داشته باشد اینجا ذخیره می‌شود. هر مورد را جداگانه اضافه کن.</div>
+  <div class="xm-add"><input id="xmInput" placeholder="مثلاً: اسم من پارساست"><button id="xmAdd">افزودن</button></div>
+  <div id="xmList" class="xm-list"></div>
+  <div class="xm-actions"><button id="xmClose" class="xm-close">بستن</button><button id="xmClear" class="xm-clear">پاک کردن همه</button></div>
+  <div class="xm-note">حافظه این نسخه روی همین مرورگر ذخیره می‌شود؛ برای حافظه ابری/بین دستگاه‌ها به Backend و پایگاه‌داده نیاز است.</div>
+</div>
+<script id="FAX-memory-js">
+(function(){
+  const KEY='FAX_memory_v1';
+  const btn=document.getElementById('xMemoryBtn'),panel=document.getElementById('xMemoryPanel'),input=document.getElementById('xmInput'),list=document.getElementById('xmList');
+  if(!btn||!panel||!input||!list)return;
+  function userKey(){return KEY+'_guest'}
+  function get(){try{const a=JSON.parse(localStorage.getItem(userKey())||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+  function set(a){localStorage.setItem(userKey(),JSON.stringify(a.slice(0,50)))}
+  function esc(t){return String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function render(){const a=get();list.innerHTML=a.length?a.map((x,i)=>`<div class="xm-item"><span>${esc(x.text)}</span><button class="xm-del" data-i="${i}">حذف</button></div>`).join(''):'<div style="color:#666;font-size:11px;text-align:center;padding:12px">هنوز حافظه‌ای ذخیره نشده.</div>';list.querySelectorAll('.xm-del').forEach(b=>b.onclick=()=>{const a=get();a.splice(+b.dataset.i,1);set(a);render()})}
+  function add(text,auto=false){text=String(text||'').trim();if(!text)return;const a=get();if(!a.some(x=>x.text.toLowerCase()===text.toLowerCase())){a.unshift({text,source:auto?'auto':'manual',at:Date.now()});set(a)}render()}
+  window.FAXMemory={get,add,getContext(){return get().map(x=>'• '+x.text).join('\n')}};
+  btn.onclick=()=>{render();panel.classList.toggle('open')};
+  document.getElementById('xmClose').onclick=()=>panel.classList.remove('open');
+  document.getElementById('xmClear').onclick=()=>{if(confirm('همه حافظه‌های FAX پاک شوند؟')){set([]);render()}};
+  document.getElementById('xmAdd').onclick=()=>{add(input.value);input.value='';input.focus()};
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('xmAdd').click()}});
+  render();
+})();
+</script>
+<script id="FAX-memory-auto-learn">
+(function(){
+  // یادگیری خودکار سبک و محلی: فقط اطلاعات پایدار و غیرحساس را نگه می‌دارد.
+  const recent=new Map();
+  function clean(v){return String(v||'').replace(/\s+/g,' ').trim().replace(/[.!؟?]+$/,'').trim()}
+  function save(v){v=clean(v); if(v.length<2||v.length>180||!window.FAXMemory)return; window.FAXMemory.add(v,true)}
+  function learn(text){
+    const s=clean(text); if(!s||!window.FAXMemory)return;
+    let m;
+    // دستور صریح: «یادت باشه ...»
+    m=s.match(/^(?:یادت باشه|یادت بمونه|به خاطر بسپار|یادت نره)[:：]?\s*(.+)$/i); if(m){save(m[1]);return}
+    // نام کاربر
+    m=s.match(/^(?:اسمم|نامم)(?: اینه)?[:：]?\s*(?:من)?\s*(.{2,60})$/i); if(m){save('اسم کاربر: '+m[1]);return}
+    // ترجیحات و علایق پایدار
+    const rules=[
+      [/^من (?:خیلی )?(.+?) (?:رو|را|و) دوست دارم$/i,'کاربر دوست دارد: $1'],
+      [/^من عاشق (.+)$/i,'کاربر علاقه‌مند به: $1'],
+      [/^(.+?) مورد علاقه(?:‌ی|ی)? منه$/i,'مورد علاقه کاربر: $1'],
+      [/^من بیشتر (.+?) دوست دارم$/i,'کاربر بیشتر دوست دارد: $1'],
+      [/^من طرفدار (.+)$/i,'کاربر طرفدار: $1'],
+      [/^من از (.+?) خوشم نمیاد$/i,'کاربر از این مورد خوشش نمی‌آید: $1'],
+      [/^من از (.+?) بدم میاد$/i,'کاربر از این مورد خوشش نمی‌آید: $1'],
+      [/^ترجیح میدم (.+)$/i,'ترجیح کاربر: $1'],
+      [/^ترجیح می‌دم (.+)$/i,'ترجیح کاربر: $1'],
+      [/^من ترجیح میدم (.+)$/i,'ترجیح کاربر: $1'],
+      [/^من فارسی حرف میزنم$/i,'زبان ترجیحی کاربر: فارسی'],
+      [/^من فارسی حرف می‌زنم$/i,'زبان ترجیحی کاربر: فارسی']
+    ];
+    for(const [re,fmt] of rules){m=s.match(re);if(m){save(fmt.replace('$1',m[1]));return}}
+    // مواردی که کاربر در یک جمله به شکل طبیعی بیان می‌کند
+    m=s.match(/(?:من|اسم من)\s+(?:پارس(?:ا|ی)|[آ-ی]{2,20})\s*(?:هستم|ام)$/i); if(m){save('نام کاربر: '+m[1]);return}
+    // از ذخیره پیام‌های تکراری/کوتاه جلوگیری کن
+    const key=s.toLowerCase(); const now=Date.now();
+    if((recent.get(key)||0)+30000>now)return; recent.set(key,now);
+  }
+  window.FAXMemoryLearn=learn;
+})();
+</script>
+
+<script>
+(function(){
+  const plus=document.getElementById('plusBtn'), tools=document.getElementById('plusTools');
+  const web=document.getElementById('webBtn'), file=document.getElementById('attachBtn'), voice=document.getElementById('voiceBtn');
+  if(!plus||!tools)return;
+  plus.addEventListener('click',e=>{e.stopPropagation();tools.classList.toggle('open');tools.setAttribute('aria-hidden',tools.classList.contains('open')?'false':'true')});
+  document.getElementById('plusWeb')?.addEventListener('click',()=>{web?.click();tools.classList.remove('open')});
+  document.getElementById('plusFile')?.addEventListener('click',()=>{file?.click();tools.classList.remove('open')});
+  document.getElementById('plusVoice')?.addEventListener('click',()=>{voice?.click();tools.classList.remove('open')});
+  document.getElementById('plusImage')?.addEventListener('click',()=>{openImageGen();tools.classList.remove('open')});
+  document.getElementById('generateImageBtn')?.addEventListener('click',generateImageFromUI);
+  document.addEventListener('click',e=>{if(!e.target.closest('.plus-wrap'))tools.classList.remove('open')});
+})();
+</script>
+<script id="FAX-ui-mode-js">(()=>{const KEY='FAX_ui_mode_v2';const btn=document.getElementById('uiModeBtn');const root=document.documentElement;let pop=null;function apply(mode){root.classList.toggle('modern-ui',mode==='modern');root.classList.toggle('neo-ui',mode==='neo');localStorage.setItem(KEY,mode);if(pop){pop.querySelectorAll('button[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));} }function close(){pop?.remove();pop=null}window.toggleUiMode=()=>{if(pop){close();return}pop=document.createElement('div');pop.className='ui-choice-pop';const current=localStorage.getItem(KEY)||'classic';pop.innerHTML='<div class="ui-choice-title">انتخاب رابط کاربری</div><button data-mode="classic">🟡 <span><b>کلاسیک FAX</b><small>همان ظاهر اصلی سایت</small></span></button><button data-mode="modern">⚪ <span><b>مینیمال</b><small>ساده، خلوت و نزدیک به چت‌بات‌های مدرن</small></span></button><button data-mode="neo">🌌 <span><b>Aurora — نئونی</b><small>فضای رنگی، پنل‌های عمیق و طراحی کاملاً متفاوت</small></span></button>';document.body.appendChild(pop);pop.querySelectorAll('button[data-mode]').forEach(b=>{b.classList.toggle('active',b.dataset.mode===current);b.onclick=()=>{apply(b.dataset.mode);close()}});setTimeout(()=>document.addEventListener('click',outside,{once:true}),0)};function outside(e){if(pop&&!pop.contains(e.target)&&e.target!==btn)close();else if(pop)setTimeout(()=>document.addEventListener('click',outside,{once:true}),0)}apply(localStorage.getItem(KEY)||'classic')})();</script>
+<script id="faxhub-loader-script">
+requestAnimationFrame(()=>{
+ const loader=document.getElementById('faxhub-loader'),bar=document.getElementById('fx-bar'),pct=document.getElementById('fx-percent'),msg=document.getElementById('fx-message'),sub=document.getElementById('fx-sub');
+ const stages=[{at:20,fa:'در حال راه‌اندازی سیستم...',en:'INITIALIZING'},{at:45,fa:'در حال بارگذاری اطلاعات...',en:'LOADING RESOURCES'},{at:70,fa:'در حال برقراری ارتباط...',en:'CONNECTING'},{at:90,fa:'در حال بهینه‌سازی...',en:'OPTIMIZING'},{at:100,fa:'همه‌چیز آماده است!',en:'READY TO GO'}];
+ const start=performance.now(),duration=7000;let stage=0;
+ function tick(now){let t=Math.min(1,(now-start)/duration),value=Math.floor(t*100);bar.style.width=(t*100)+'%';pct.textContent=value+'%';while(stage<stages.length-1&&value>=stages[stage].at){stage++;msg.textContent=stages[stage].fa;sub.textContent=stages[stage].en;}if(t<1)requestAnimationFrame(tick);else setTimeout(()=>loader.classList.add('done'),350);}
+ requestAnimationFrame(tick);
+ // Safety fallback: always dismiss loader and reveal the FAX app after 7 seconds.
+ setTimeout(()=>{bar.style.width='100%';pct.textContent='100%';msg.textContent='همه‌چیز آماده است!';sub.textContent='READY TO GO';loader.classList.add('done');setTimeout(()=>loader.remove(),500);},7100);
+});
+</script>
+</body></html>
+<style id="FAX-touch-feedback-only">
+/* Touch feedback only: preserve all existing button dimensions and visuals */
+.messages .actions button,
+#messages .msg.user .actions button,
+#aiMessages .msgActions button,
+.ai-code .ai-code-copy {
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+  transition: transform 110ms ease, opacity 110ms ease, filter 110ms ease !important;
+}
+.messages .actions button:active,
+#messages .msg.user .actions button:active,
+#aiMessages .msgActions button:active,
+.ai-code .ai-code-copy:active {
+  transform: scale(.94) !important;
+  opacity: .72 !important;
+  filter: brightness(.92) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .messages .actions button,
+  #messages .msg.user .actions button,
+  #aiMessages .msgActions button,
+  .ai-code .ai-code-copy { transition: opacity 80ms linear !important; }
+}
+</style>
+<style id="FAX-stop-button-theme-adaptation">
+/* Stop button follows all FAX themes, including the default black/dark theme */
+#composer #stop.stop-btn,.composer #stop.stop-btn{
+  background:var(--y,#ffd21c)!important;
+  background-image:none!important;
+  border-color:var(--accent,var(--y,#ffd21c))!important;
+  color:#171717!important;
+  box-shadow:0 4px 14px color-mix(in srgb,var(--accent,#ffd21c) 28%,transparent),inset 0 1px 0 rgba(255,255,255,.22)!important;
+}
+#composer #stop.stop-btn:hover,.composer #stop.stop-btn:hover{
+  filter:brightness(1.08)!important;
+  box-shadow:0 7px 20px color-mix(in srgb,var(--accent,#ffd21c) 38%,transparent),inset 0 1px 0 rgba(255,255,255,.24)!important;
+}
+[data-theme="dark"] #composer #stop.stop-btn,[data-theme="dark"] .composer #stop.stop-btn{background:#f5c400!important;border-color:#f5c400!important;color:#111!important;box-shadow:0 0 0 1px #f5c400,0 4px 12px #f5c40022!important}
+[data-theme="light"] #composer #stop.stop-btn,[data-theme="light"] .composer #stop.stop-btn{background:#d59f00!important;border-color:#d59f00!important;color:#171717!important}
+[data-theme="ocean"] #composer #stop.stop-btn,[data-theme="ocean"] .composer #stop.stop-btn{color:#071018!important}
+[data-theme="purple"] #composer #stop.stop-btn,[data-theme="purple"] .composer #stop.stop-btn{color:#160d20!important}
+[data-theme="green"] #composer #stop.stop-btn,[data-theme="green"] .composer #stop.stop-btn{color:#06100b!important}
+[data-theme="rose"] #composer #stop.stop-btn,[data-theme="rose"] .composer #stop.stop-btn{color:#13080d!important}
+</style>
